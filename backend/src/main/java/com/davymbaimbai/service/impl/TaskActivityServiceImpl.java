@@ -43,8 +43,6 @@ public class TaskActivityServiceImpl implements TaskActivityService {
             activity.setNewValue(newValue);
             
             TaskActivity savedActivity = taskActivityRepository.save(activity);
-            
-            // Broadcast activity via WebSocket
             webSocketService.broadcastTaskActivity(savedActivity);
             
             return Response.<TaskActivity>builder()

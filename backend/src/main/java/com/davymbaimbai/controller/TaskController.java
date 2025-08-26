@@ -65,7 +65,6 @@ public class TaskController {
         return ResponseEntity.ok(taskService.deleteTask(id));
     }
 
-    // Comment endpoints
     @PostMapping("/{id}/comments")
     public ResponseEntity<Response<CommentResponse>> addComment(@PathVariable Long id, @Valid @RequestBody CommentRequest commentRequest) {
         return ResponseEntity.ok(taskCommentService.addComment(id, commentRequest));

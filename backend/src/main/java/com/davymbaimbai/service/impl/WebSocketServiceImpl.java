@@ -68,12 +68,9 @@ public class WebSocketServiceImpl implements WebSocketService {
                 .timestamp(activity.getCreatedAt())
                 .oldStatus(activity.getOldValue())
                 .newStatus(activity.getNewValue())
-                .comment(activity.getNewValue()) // For comment activities
+                .comment(activity.getNewValue())
                 .build();
-        
-        // Broadcast to task-specific activity feed
         messagingTemplate.convertAndSend("/topic/tasks/" + activity.getTask().getId() + "/activities", activityDto);
-        // Broadcast to general task updates
         messagingTemplate.convertAndSend("/topic/tasks", activityDto);
     }
 }

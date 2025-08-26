@@ -11,12 +11,8 @@ public interface TaskService {
     Response<Task> getTaskById(Long id);
     Response<Task> updateTask(TaskRequest taskRequest);
     Response<Void> deleteTask(Long id);
-    
-    // Backward compatibility methods
     Response<List<Task>> getMyTasksByCompletionStatus(boolean completed);
     Response<List<Task>> getMyTasksByPriority(String priority);
-    
-    // New methods for assignment requirements
     Response<List<Task>> getTasksWithFilters(String status, Long assigneeId);
     Response<List<Task>> getAllTasks();
 }

@@ -85,14 +85,9 @@ class TaskServiceTest {
 
     @Test
     void createTask_Success() {
-        // Arrange
         when(userService.getCurrentLoggedInUser()).thenReturn(testUser);
         when(taskRepository.save(any(Task.class))).thenReturn(testTask);
-
-        // Act
         Response<Task> response = taskService.createTask(taskRequest);
-
-        // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         assertEquals("Task Created Successfully", response.getMessage());
@@ -102,16 +97,11 @@ class TaskServiceTest {
 
     @Test
     void createTask_WithAssignee_Success() {
-        // Arrange
         taskRequest.setAssigneeId(2L);
         when(userService.getCurrentLoggedInUser()).thenReturn(testUser);
         when(userRepository.findById(2L)).thenReturn(Optional.of(assigneeUser));
         when(taskRepository.save(any(Task.class))).thenReturn(testTask);
-
-        // Act
         Response<Task> response = taskService.createTask(taskRequest);
-
-        // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         verify(userRepository, times(1)).findById(2L);
@@ -120,15 +110,10 @@ class TaskServiceTest {
 
     @Test
     void getAllMyTasks_Success() {
-        // Arrange
         List<Task> tasks = Arrays.asList(testTask);
         when(userService.getCurrentLoggedInUser()).thenReturn(testUser);
         when(taskRepository.findByUser(eq(testUser), any(Sort.class))).thenReturn(tasks);
-
-        // Act
         Response<List<Task>> response = taskService.getAllMyTasks();
-
-        // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         assertEquals("Tasks retrieved successfully", response.getMessage());

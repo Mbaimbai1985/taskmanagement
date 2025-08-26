@@ -78,16 +78,11 @@ class UserServiceTest {
 
     @Test
     void signUp_Success() {
-        // Arrange
         when(userRepository.existsByUsername("testuser")).thenReturn(false);
         when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
         when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
-
-        // Act
         Response<?> response = userService.signUp(userRequest);
-
-        // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         assertEquals("user registered successfully", response.getMessage());

@@ -95,7 +95,7 @@ public class DataSeeder implements CommandLineRunner {
                 .priority(Priority.HIGH)
                 .creator(admin)
                 .assignee(admin)
-                .user(admin) // for backward compatibility
+                .user(admin)
                 .createdAt(now.minusDays(10))
                 .updatedAt(now.minusDays(8))
                 .build(),

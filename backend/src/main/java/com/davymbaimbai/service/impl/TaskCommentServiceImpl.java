@@ -54,8 +54,6 @@ public class TaskCommentServiceImpl implements TaskCommentService {
         comment.setUser(currentUser);
         comment.setComment(commentRequest.getComment());
         TaskComment savedComment = commentRepository.save(comment);
-        
-        // Log comment activity
         taskActivityService.logCommentAdded(taskId, currentUser.getId(), commentRequest.getComment());
         
         webSocketService.broadcastTaskComment(taskId, commentRequest.getComment(), currentUser.getUsername());
@@ -103,8 +101,6 @@ public class TaskCommentServiceImpl implements TaskCommentService {
                 .orElseThrow(() -> new NotFoundException("Comment not found"));
         
         User currentUser = userService.getCurrentLoggedInUser();
-        
-        // Check if user owns the comment or is admin
         if (!comment.getUser().getId().equals(currentUser.getId()) && 
             !currentUser.getRole().toString().equals("ADMIN")) {
             throw new BadRequestException("You don't have permission to update this comment");
@@ -113,8 +109,6 @@ public class TaskCommentServiceImpl implements TaskCommentService {
         comment.setComment(commentRequest.getComment());
         comment.setUpdatedAt(LocalDateTime.now());
         TaskComment updatedComment = commentRepository.save(comment);
-        
-        // Broadcast comment update via WebSocket
         webSocketService.broadcastTaskComment(comment.getTask().getId(), 
                 commentRequest.getComment(), currentUser.getUsername());
         
@@ -140,16 +134,12 @@ public class TaskCommentServiceImpl implements TaskCommentService {
                 .orElseThrow(() -> new NotFoundException("Comment not found"));
         
         User currentUser = userService.getCurrentLoggedInUser();
-        
-        // Check if user owns the comment or is admin
         if (!comment.getUser().getId().equals(currentUser.getId()) && 
             !currentUser.getRole().toString().equals("ADMIN")) {
             throw new BadRequestException("You don't have permission to delete this comment");
         }
         
         Long taskId = comment.getTask().getId();
-        
-        // Broadcast comment deletion via WebSocket before deleting
         webSocketService.broadcastTaskComment(taskId, 
                 "Comment deleted", currentUser.getUsername());
         

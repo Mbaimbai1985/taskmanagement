@@ -34,13 +34,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public Response<?> signUp(UserRequest userRequest) {
         log.info("Inside signUp()");
-        
-        // Check if username already exists
         if (userRepository.existsByUsername(userRequest.getUsername())) {
             throw new BadRequestException("Username already taken");
         }
-        
-        // Check if email already exists
         if (userRepository.existsByEmail(userRequest.getEmail())) {
             throw new BadRequestException("Email already registered");
         }

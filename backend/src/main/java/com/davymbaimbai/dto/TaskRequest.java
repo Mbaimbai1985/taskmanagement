@@ -23,11 +23,7 @@ public class TaskRequest {
 
     @NotNull(message = "Priority is required")
     private Priority priority;
-
-    // ID of user to assign task to (optional)
     private Long assigneeId;
-
-    // For backward compatibility - will be converted to status
     private Boolean completed;
 
 }
