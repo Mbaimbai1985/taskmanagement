@@ -520,7 +520,7 @@ COPY build/ /usr/share/nginx/html/
 EXPOSE 80
 ```
 
-## 🔧 Configuration
+##  Configuration
 
 ### Package.json Scripts
 ```json
@@ -638,4 +638,4 @@ npm install
 
 ---
 
-**TaskManager Frontend** - Creating beautiful, responsive, and user-friendly task management experiences! 🎨✨
+**TaskManager Frontend** - Creating beautiful, responsive, and user-friendly task management experiences! 
