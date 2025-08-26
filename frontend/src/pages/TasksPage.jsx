@@ -201,7 +201,9 @@ const TasksPage = () => {
                     <h1>My Tasks</h1>
                     {userInfo && (
                         <div className="user-welcome">
-                            <span>Welcome back, <strong>{userInfo.username}</strong></span>
+                            <span>Welcome back, <strong>
+                                {userInfo.role === 'ADMIN' ? 'ADMIN' : userInfo.username}
+                            </strong></span>
                             <span className="user-role">({userInfo.role})</span>
                             {isAdmin && <span className="admin-badge">Admin</span>}
                         </div>

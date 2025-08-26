@@ -50,7 +50,9 @@ const Navbar = () => {
                             <Link to="/admin/tasks" className="nav-link admin-link">All Tasks</Link>
                         )}
                         <div className="user-info">
-                            <span className="user-name">{userInfo?.username || 'User'}</span>
+                            <span className="user-name">
+                                {userInfo?.role === 'ADMIN' ? 'ADMIN' : (userInfo?.username || 'User')}
+                            </span>
                             <span className="user-role">({userInfo?.role || 'USER'})</span>
                         </div>
                         <button onClick={handleLogout} className="nav-button">

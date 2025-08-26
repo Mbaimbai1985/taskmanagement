@@ -48,9 +48,9 @@ export default class ApiService {
 
     static async getUserRole() {
         const currentUser = await this.getCurrentUser();
-        console.log('Current User from API:', currentUser); // Debug log
+        console.log('Current User from API:', currentUser);
         const role = currentUser?.role;
-        console.log('Detected Role:', role); // Debug log
+        console.log('Detected Role:', role);
         return role;
     }
 
@@ -79,13 +79,11 @@ export default class ApiService {
         return resp.data;
     }
 
-    //Login USER
     static async loginUser(body) {
         const resp = await axios.post(`${this.API_URL}/auth/login`, body);
         return resp.data;
     }
 
-    //Get all users for task assignment
     static async getAllUsers() {
         const resp = await axios.get(`${this.API_URL}/users`, {
             headers: this.getHeader()
@@ -94,8 +92,6 @@ export default class ApiService {
     }
 
 
-
-  //TASKS API
   static async createTask(body) {
     const resp = await axios.post(`${this.API_URL}/tasks`, body, {
       headers: this.getHeader()
@@ -105,7 +101,7 @@ export default class ApiService {
 
 
   static async updateTask(body) {
-    const resp = await axios.put(`${this.API_URL}/tasks`, body, {
+    const resp = await axios.put(`${this.API_URL}/tasks/${body.id}`, body, {
       headers: this.getHeader()
     });
     return resp.data;
@@ -155,8 +151,6 @@ export default class ApiService {
     });
     return resp.data;
   }
-
-  // New method for filtering tasks by status and assignee
   static async getTasksWithFilters(status, assigneeId) {
     const resp = await axios.get(`${this.API_URL}/tasks`, {
       headers: this.getHeader(),
@@ -175,7 +169,6 @@ export default class ApiService {
     return resp.data;
   }
 
-  // Comment-related methods
   static async addComment(taskId, comment) {
     const resp = await axios.post(`${this.API_URL}/tasks/${taskId}/comments`, { comment }, {
       headers: this.getHeader()
@@ -204,7 +197,7 @@ export default class ApiService {
     return resp.data;
   }
 
-  // Role-based permission methods
+
   static async canCreateTasks() {
     return await this.isAdmin();
   }
@@ -224,36 +217,31 @@ export default class ApiService {
   static async canCommentOnTasks() {
     const isAdmin = await this.isAdmin();
     const isUser = await this.isUser();
-    return isAdmin || isUser; // Both admin and user can comment
+    return isAdmin || isUser;
   }
 
   static async canMoveTaskStatus() {
     const isAdmin = await this.isAdmin();
     const isUser = await this.isUser();
-    return isAdmin || isUser; // Both admin and user can move status
+    return isAdmin || isUser;
   }
 
   static async canViewTasks() {
     const isAdmin = await this.isAdmin();
     const isUser = await this.isUser();
-    return isAdmin || isUser; // Both admin and user can view
+    return isAdmin || isUser;
   }
 
   static async canEditComment(commentUsername) {
     const currentUser = await this.getCurrentUser();
     const isAdmin = await this.isAdmin();
-    
-    // Can edit if: admin OR owns the comment
     return isAdmin || (currentUser && currentUser.username === commentUsername);
   }
 
   static async canDeleteComment(commentUsername) {
     const currentUser = await this.getCurrentUser();
     const isAdmin = await this.isAdmin();
-    
-    // Can delete if: admin OR owns the comment
     return isAdmin || (currentUser && currentUser.username === commentUsername);
   }
-
 
 }
