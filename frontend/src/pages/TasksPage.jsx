@@ -73,12 +73,19 @@ const TasksPage = () => {
         fetchUserInfo();
         
         // Setup WebSocket connection
-        WebSocketService.connect();
-        WebSocketService.subscribeToTasks((taskUpdate) => {
-            setTasks(prev => prev.map(task => 
-                task.id === taskUpdate.id ? { ...task, ...taskUpdate } : task
-            ));
-        });
+        WebSocketService.connect()
+            .then(() => {
+                console.log('WebSocket connected successfully');
+                WebSocketService.subscribeToTasks((taskUpdate) => {
+                    setTasks(prev => prev.map(task => 
+                        task.id === taskUpdate.id ? { ...task, ...taskUpdate } : task
+                    ));
+                });
+            })
+            .catch((error) => {
+                console.warn('WebSocket connection failed:', error.message);
+                // App continues to work without real-time updates
+            });
 
         // Cleanup on unmount
         return () => {
@@ -203,8 +210,14 @@ const TasksPage = () => {
     };
 
     const handleTaskClick = (task) => {
-        setSelectedTask(task);
-        setShowTaskDetails(true);
+        // If user is admin, navigate to edit page for task assignment
+        if (userInfo?.role === 'ADMIN') {
+            navigate(`/tasks/edit/${task.id}`);
+        } else {
+            // Regular users see the task details modal
+            setSelectedTask(task);
+            setShowTaskDetails(true);
+        }
     };
 
     const handleTaskUpdate = (updatedTask) => {

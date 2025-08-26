@@ -85,9 +85,14 @@ class TaskServiceTest {
 
     @Test
     void createTask_Success() {
+        // Arrange
         when(userService.getCurrentLoggedInUser()).thenReturn(testUser);
         when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+
+        // Act
         Response<Task> response = taskService.createTask(taskRequest);
+
+        // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         assertEquals("Task Created Successfully", response.getMessage());
@@ -97,11 +102,16 @@ class TaskServiceTest {
 
     @Test
     void createTask_WithAssignee_Success() {
+        // Arrange
         taskRequest.setAssigneeId(2L);
         when(userService.getCurrentLoggedInUser()).thenReturn(testUser);
         when(userRepository.findById(2L)).thenReturn(Optional.of(assigneeUser));
         when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+
+        // Act
         Response<Task> response = taskService.createTask(taskRequest);
+
+        // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         verify(userRepository, times(1)).findById(2L);
@@ -110,10 +120,15 @@ class TaskServiceTest {
 
     @Test
     void getAllMyTasks_Success() {
+        // Arrange
         List<Task> tasks = Arrays.asList(testTask);
         when(userService.getCurrentLoggedInUser()).thenReturn(testUser);
         when(taskRepository.findByUser(eq(testUser), any(Sort.class))).thenReturn(tasks);
+
+        // Act
         Response<List<Task>> response = taskService.getAllMyTasks();
+
+        // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         assertEquals("Tasks retrieved successfully", response.getMessage());
@@ -123,13 +138,19 @@ class TaskServiceTest {
 
     @Test
     void updateTask_Success() {
+        // Arrange
         taskRequest.setId(1L);
         taskRequest.setTitle("Updated Task");
         testTask.setCreator(testUser);
+        
         when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
         when(userService.getCurrentLoggedInUser()).thenReturn(testUser);
         when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+
+        // Act
         Response<Task> response = taskService.updateTask(taskRequest);
+
+        // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         assertEquals("Task updated successfully", response.getMessage());
@@ -139,8 +160,13 @@ class TaskServiceTest {
 
     @Test
     void deleteTask_Success() {
+        // Arrange
         when(taskRepository.existsById(1L)).thenReturn(true);
+
+        // Act
         Response<Void> response = taskService.deleteTask(1L);
+
+        // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         assertEquals("task deleted successfully", response.getMessage());
@@ -150,11 +176,16 @@ class TaskServiceTest {
 
     @Test
     void getTasksWithFilters_Success() {
+        // Arrange
         List<Task> tasks = Arrays.asList(testTask);
         when(userService.getCurrentLoggedInUser()).thenReturn(testUser);
         when(taskRepository.findTasksWithFilters(eq(TaskStatus.TODO), isNull(), eq(testUser), any(Sort.class)))
                 .thenReturn(tasks);
+
+        // Act
         Response<List<Task>> response = taskService.getTasksWithFilters("TODO", null);
+
+        // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         assertEquals("Tasks filtered successfully", response.getMessage());

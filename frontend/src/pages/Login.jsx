@@ -22,7 +22,6 @@ const Login = () => {
             ...prev,
             [name]: value
         }))
-        // Clear messages when user starts typing
         if (error) setError('')
         if (success) setSuccess('')
     }
@@ -44,7 +43,7 @@ const Login = () => {
             if (res.statusCode === 200) {
                 setSuccess("Login successful! Redirecting to dashboard...")
                 ApiService.saveToken(res.data)
-                // Wait 1.5 seconds to show success message before navigating
+                window.dispatchEvent(new Event('authChange'));
                 setTimeout(() => {
                     navigate("/tasks")
                 }, 1500)

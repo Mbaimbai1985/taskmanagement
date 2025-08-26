@@ -110,6 +110,7 @@ export default class ApiService {
 
   //TASKS API
   static async createTask(body) {
+    console.log('Creating task with data:', body); // Debug log
     const resp = await axios.post(`${this.API_URL}/tasks`, body, {
       headers: this.getHeader()
     });
@@ -118,6 +119,7 @@ export default class ApiService {
 
 
   static async updateTask(body) {
+    console.log('Updating task with data:', body); // Debug log
     const resp = await axios.put(`${this.API_URL}/tasks/${body.id}`, body, {
       headers: this.getHeader()
     });
@@ -237,34 +239,30 @@ export default class ApiService {
   static async canCommentOnTasks() {
     const isAdmin = await this.isAdmin();
     const isUser = await this.isUser();
-    return isAdmin || isUser; // Both admin and user can comment
+    return isAdmin || isUser;
   }
 
   static async canMoveTaskStatus() {
     const isAdmin = await this.isAdmin();
     const isUser = await this.isUser();
-    return isAdmin || isUser; // Both admin and user can move status
+    return isAdmin || isUser;
   }
 
   static async canViewTasks() {
     const isAdmin = await this.isAdmin();
     const isUser = await this.isUser();
-    return isAdmin || isUser; // Both admin and user can view
+    return isAdmin || isUser;
   }
 
   static async canEditComment(commentUsername) {
     const currentUser = await this.getCurrentUser();
     const isAdmin = await this.isAdmin();
-    
-    // Can edit if: admin OR owns the comment
     return isAdmin || (currentUser && currentUser.username === commentUsername);
   }
 
   static async canDeleteComment(commentUsername) {
     const currentUser = await this.getCurrentUser();
     const isAdmin = await this.isAdmin();
-    
-    // Can delete if: admin OR owns the comment
     return isAdmin || (currentUser && currentUser.username === commentUsername);
   }
 

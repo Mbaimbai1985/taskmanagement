@@ -57,6 +57,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.deleteTask(id));
     }
 
+    // Comment endpoints
     @PostMapping("/{id}/comments")
     public ResponseEntity<Response<CommentResponse>> addComment(@PathVariable Long id, @Valid @RequestBody CommentRequest commentRequest) {
         return ResponseEntity.ok(taskCommentService.addComment(id, commentRequest));
@@ -76,6 +77,8 @@ public class TaskController {
     public ResponseEntity<Response<Void>> deleteComment(@PathVariable Long commentId) {
         return ResponseEntity.ok(taskCommentService.deleteComment(commentId));
     }
+
+    // Backward compatibility endpoints
     @GetMapping("/status")
     public ResponseEntity<Response<List<Task>>> getMyTasksByCompletionStatus(
             @RequestParam boolean completed

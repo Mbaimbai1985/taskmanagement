@@ -2,7 +2,7 @@
 
 A robust Spring Boot backend for the TaskManager application, featuring JWT authentication, role-based access control, real-time WebSocket communication, and comprehensive task management capabilities.
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
 - **Java 17+** (OpenJDK or Oracle JDK)
@@ -37,7 +37,7 @@ java -jar target/taskmanager-0.0.1-SNAPSHOT.jar
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-##  Architecture
+## 🏗️ Architecture
 
 ### Project Structure
 ```
@@ -99,7 +99,7 @@ backend/
     └── application-dev.properties # Development configuration
 ```
 
-##  Technologies & Dependencies
+## 🔧 Technologies & Dependencies
 
 ### Core Technologies
 - **Spring Boot 3.2.0** - Application framework
@@ -149,7 +149,7 @@ backend/
 </dependency>
 ```
 
-##  Database Schema
+## 📊 Database Schema
 
 ### Users Table
 ```sql
@@ -215,7 +215,7 @@ CREATE TABLE task_comments (
 - **ADMIN**: Full access to all resources
 - **USER**: Limited access based on ownership
 
-##  API Documentation
+## 📡 API Documentation
 
 ### Base URL
 ```
@@ -438,7 +438,7 @@ const stompClient = Stomp.over(socket);
 }
 ```
 
-##  Testing
+## 🧪 Testing
 
 ### Running Tests
 ```bash
@@ -535,7 +535,7 @@ EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 ```
 
-## Performance Considerations
+## 📊 Performance Considerations
 
 ### Database Optimization
 - JPA lazy loading for relationships
@@ -553,7 +553,7 @@ ENTRYPOINT ["java", "-jar", "/app.jar"]
 - Logging configuration
 - Error tracking and handling
 
-##  Troubleshooting
+## 🔍 Troubleshooting
 
 ### Common Issues
 
@@ -580,7 +580,7 @@ logging.level.com.davymbaimbai=DEBUG
 logging.level.org.springframework.security=DEBUG
 ```
 
-##  Future Enhancements
+## 📈 Future Enhancements
 
 - [ ] PostgreSQL production database
 - [ ] Redis caching layer
@@ -591,7 +591,7 @@ logging.level.org.springframework.security=DEBUG
 - [ ] Docker containerization
 - [ ] CI/CD pipeline configuration
 
-##  Contributing
+## 🤝 Contributing
 
 1. Follow Spring Boot best practices
 2. Write unit tests for new features
@@ -601,4 +601,4 @@ logging.level.org.springframework.security=DEBUG
 
 ---
 
-**TaskManager Backend** - Powering efficient task management with robust Spring Boot architecture! 
+**TaskManager Backend** - Powering efficient task management with robust Spring Boot architecture! 🚀

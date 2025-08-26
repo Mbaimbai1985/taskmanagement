@@ -234,6 +234,7 @@ public class DataSeeder implements CommandLineRunner {
                     .createdAt(now.minusDays(8))
                     .updatedAt(now.minusDays(8))
                     .build(),
+
                 TaskComment.builder()
                     .task(tasks.get(1))
                     .user(alice)
@@ -241,6 +242,7 @@ public class DataSeeder implements CommandLineRunner {
                     .createdAt(now.minusDays(2))
                     .updatedAt(now.minusDays(2))
                     .build(),
+
                 TaskComment.builder()
                     .task(tasks.get(1))
                     .user(admin)
@@ -248,6 +250,7 @@ public class DataSeeder implements CommandLineRunner {
                     .createdAt(now.minusDays(1))
                     .updatedAt(now.minusDays(1))
                     .build(),
+
                 TaskComment.builder()
                     .task(tasks.get(2))
                     .user(bob)
@@ -255,6 +258,7 @@ public class DataSeeder implements CommandLineRunner {
                     .createdAt(now.minusDays(1))
                     .updatedAt(now.minusDays(1))
                     .build(),
+
                 TaskComment.builder()
                     .task(tasks.get(3))
                     .user(alice)
@@ -262,6 +266,7 @@ public class DataSeeder implements CommandLineRunner {
                     .createdAt(now.minusHours(12))
                     .updatedAt(now.minusHours(12))
                     .build(),
+
                 TaskComment.builder()
                     .task(tasks.get(4))
                     .user(bob)
@@ -269,6 +274,7 @@ public class DataSeeder implements CommandLineRunner {
                     .createdAt(now.minusDays(6))
                     .updatedAt(now.minusDays(6))
                     .build(),
+
                 TaskComment.builder()
                     .task(tasks.get(5))
                     .user(user1)
@@ -276,6 +282,7 @@ public class DataSeeder implements CommandLineRunner {
                     .createdAt(now.minusDays(1))
                     .updatedAt(now.minusDays(1))
                     .build(),
+
                 TaskComment.builder()
                     .task(tasks.get(8))
                     .user(user1)
@@ -283,6 +290,7 @@ public class DataSeeder implements CommandLineRunner {
                     .createdAt(now.minusHours(12))
                     .updatedAt(now.minusHours(12))
                     .build(),
+
                 TaskComment.builder()
                     .task(tasks.get(8))
                     .user(alice)

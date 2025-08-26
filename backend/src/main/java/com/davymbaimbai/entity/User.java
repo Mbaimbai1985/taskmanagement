@@ -20,9 +20,11 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
     @Column(unique = true, nullable = false)
     @NotBlank(message = "Username is required")
     private String username;
+    
     @Column(unique = true, nullable = false)
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")

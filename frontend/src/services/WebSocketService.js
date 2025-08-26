@@ -1,5 +1,6 @@
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import ApiService from '../api/ApiService';
 
 class WebSocketService {
     constructor() {
@@ -15,9 +16,17 @@ class WebSocketService {
                 return;
             }
 
+            if (!ApiService.isAuthenticated()) {
+                console.warn('WebSocket: User not authenticated, skipping connection');
+                reject(new Error('User not authenticated'));
+                return;
+            }
+            const token = ApiService.getToken();
+            const connectHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
             this.client = new Client({
                 webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
-                connectHeaders: {},
+                connectHeaders: connectHeaders,
                 debug: (str) => {
                     console.log('WebSocket Debug:', str);
                 },
@@ -118,6 +127,5 @@ class WebSocketService {
     }
 }
 
-// Create singleton instance
 const webSocketService = new WebSocketService();
 export default webSocketService;

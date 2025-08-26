@@ -16,27 +16,22 @@ const TaskFormPage = () => {
         priority: 'MEDIUM',
         status: 'TODO',
         assigneeId: '',
-        completed: false // For backward compatibility
+        completed: false
     });
 
     const [users, setUsers] = useState([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    
-    // Toast notifications
     const { toasts, removeToast, showSuccess, showError, showInfo } = useToast();
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                // Fetch users for assignment dropdown
                 const usersResponse = await ApiService.getAllUsers();
                 if (usersResponse.statusCode === 200) {
                     setUsers(usersResponse.data);
                 }
-
-                // If editing, fetch the task data
                 if (isEdit) {
                     const taskResponse = await ApiService.getTaskById(id);
                     if (taskResponse.statusCode === 200) {
@@ -67,8 +62,6 @@ const TaskFormPage = () => {
     const handleChange = (e) => {
         const { name, value, type } = e.target;
         let processedValue = value;
-
-        // Handle special cases
         if (name === 'assigneeId') {
             processedValue = value === '' ? null : parseInt(value);
         }
@@ -94,7 +87,6 @@ const TaskFormPage = () => {
         try {
             const submitData = {
                 ...formData,
-                // Convert status back to completed for backward compatibility if needed
                 completed: formData.status === 'DONE'
             };
 
@@ -108,7 +100,6 @@ const TaskFormPage = () => {
             }
 
             if (response.statusCode === 200) {
-                // Small delay to show success message before navigation
                 setTimeout(() => {
                     navigate('/tasks');
                 }, 1000);
@@ -135,7 +126,6 @@ const TaskFormPage = () => {
         try {
             await ApiService.deleteTask(id);
             showSuccess(`Task "${formData.title}" deleted successfully!`);
-            // Small delay to show success message before navigation
             setTimeout(() => {
                 navigate('/tasks');
             }, 1000);

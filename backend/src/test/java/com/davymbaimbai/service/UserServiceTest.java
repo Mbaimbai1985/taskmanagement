@@ -78,11 +78,16 @@ class UserServiceTest {
 
     @Test
     void signUp_Success() {
+        // Arrange
         when(userRepository.existsByUsername("testuser")).thenReturn(false);
         when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
         when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+        // Act
         Response<?> response = userService.signUp(userRequest);
+
+        // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         assertEquals("user registered successfully", response.getMessage());
@@ -93,7 +98,10 @@ class UserServiceTest {
 
     @Test
     void signUp_UsernameAlreadyExists_ThrowsException() {
+        // Arrange
         when(userRepository.existsByUsername("testuser")).thenReturn(true);
+
+        // Act & Assert
         BadRequestException exception = assertThrows(BadRequestException.class, 
             () -> userService.signUp(userRequest));
         assertEquals("Username already taken", exception.getMessage());

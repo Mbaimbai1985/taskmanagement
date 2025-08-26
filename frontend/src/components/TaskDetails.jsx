@@ -21,8 +21,7 @@ const TaskDetails = ({ task, onClose, onTaskUpdate }) => {
   useEffect(() => {
     loadComments();
     loadPermissions();
-    
-    // Subscribe to WebSocket updates for this task
+
     const unsubscribe = WebSocketService.subscribeToTaskComments(task.id, handleCommentUpdate);
     
     return () => {
@@ -31,7 +30,6 @@ const TaskDetails = ({ task, onClose, onTaskUpdate }) => {
   }, [task.id]);
 
   const handleCommentUpdate = (update) => {
-    // Refresh comments when we receive WebSocket updates
     loadComments();
   };
 
@@ -111,7 +109,7 @@ const TaskDetails = ({ task, onClose, onTaskUpdate }) => {
     try {
       const response = await ApiService.deleteComment(commentId);
       if (response.statusCode === 200) {
-        loadComments(); // Refresh comments
+        loadComments();
       }
     } catch (error) {
       console.error('Error deleting comment:', error);

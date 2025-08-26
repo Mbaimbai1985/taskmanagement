@@ -23,7 +23,6 @@ const Register = () => {
             ...prev,
             [name]: value
         }))
-        // Clear messages when user starts typing
         if (error) setError('')
         if (success) setSuccess('')
     }
@@ -44,7 +43,6 @@ const Register = () => {
             const res = await ApiService.registerUser(formData);
             if (res.statusCode === 200) {
                 setSuccess("Registration successful! Redirecting to login...")
-                // Wait 2 seconds to show success message before navigating
                 setTimeout(() => {
                     navigate("/login")
                 }, 2000)

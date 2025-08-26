@@ -28,7 +28,7 @@ public class SecurityFilterConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(req->
-                        req.requestMatchers("/api/auth/**").permitAll()
+                        req.requestMatchers("/api/auth/**", "/ws/**").permitAll()
                                 .anyRequest().authenticated())
                 .sessionManagement(mag-> mag.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
