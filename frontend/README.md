@@ -2,7 +2,7 @@
 
 A modern, responsive React frontend for the TaskManager application, featuring real-time task management, authentication, role-based permissions, and a beautiful user interface.
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 - **Node.js 16+** (LTS recommended)
@@ -43,7 +43,7 @@ npm run lint
 npm run lint:fix
 ```
 
-## 🏗️ Architecture & Structure
+##  Architecture & Structure
 
 ### Project Structure
 ```
@@ -76,7 +76,7 @@ frontend/
 └── README.md                  # This file
 ```
 
-## 🎨 UI/UX Features
+##  UI/UX Features
 
 ### Design System
 - **Color Palette**: Modern blue/purple gradient theme
@@ -101,7 +101,7 @@ frontend/
 - **Focus Management**: Clear focus indicators
 - **Color Contrast**: WCAG 2.1 AA compliant
 
-## 🔧 Technologies & Dependencies
+##  Technologies & Dependencies
 
 ### Core Technologies
 - **React 18+** - UI framework with Hooks
@@ -130,7 +130,7 @@ frontend/
 }
 ```
 
-## 🔐 Authentication Flow
+##  Authentication Flow
 
 ### Login Process
 1. User enters email/password
@@ -178,7 +178,7 @@ const AuthRoute = ({ element }) => {
 };
 ```
 
-## 📊 State Management
+##  State Management
 
 ### Component State (useState)
 ```javascript
@@ -230,7 +230,7 @@ useEffect(() => {
 }, []);
 ```
 
-## 🔌 API Integration
+##  API Integration
 
 ### ApiService Structure
 ```javascript
@@ -280,7 +280,7 @@ try {
 }
 ```
 
-## ⚡ Real-time Features
+##  Real-time Features
 
 ### WebSocket Connection
 ```javascript
@@ -320,7 +320,7 @@ useEffect(() => {
 }, []);
 ```
 
-## 📱 Component Documentation
+##  Component Documentation
 
 ### TasksPage Component
 **Purpose**: Main dashboard displaying user tasks
@@ -372,7 +372,7 @@ useEffect(() => {
 - Logout functionality
 - Responsive design
 
-## 🎯 User Experience
+##  User Experience
 
 ### Loading States
 ```javascript
@@ -424,7 +424,7 @@ const validateForm = () => {
 };
 ```
 
-## 🧪 Testing
+##  Testing
 
 ### Running Tests
 ```bash
@@ -479,7 +479,7 @@ test('renders task title', () => {
 });
 ```
 
-## 🚀 Build & Deployment
+##  Build & Deployment
 
 ### Development Build
 ```bash
@@ -544,7 +544,7 @@ EXPOSE 80
 }
 ```
 
-## 📊 Performance Optimization
+##  Performance Optimization
 
 ### Code Splitting
 ```javascript
@@ -577,7 +577,7 @@ npm run build
 npx source-map-explorer 'build/static/js/*.js'
 ```
 
-## 🔍 Troubleshooting
+##  Troubleshooting
 
 ### Common Issues
 
@@ -607,7 +607,7 @@ rm -rf node_modules package-lock.json
 npm install
 ```
 
-## 📈 Future Enhancements
+##  Future Enhancements
 
 - [ ] Progressive Web App (PWA) features
 - [ ] Offline support with service workers
@@ -620,7 +620,7 @@ npm install
 - [ ] Performance monitoring
 - [ ] Component library documentation
 
-## 🤝 Contributing
+##  Contributing
 
 ### Development Guidelines
 1. Follow React best practices
