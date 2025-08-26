@@ -52,7 +52,7 @@ task-management-system/
 └── SAMPLE_DATA.md            # Sample data documentation
 ```
 
-## 🚦 Quick Start
+##  Quick Start
 
 ### Prerequisites
 - Java 17+
@@ -592,7 +592,7 @@ cd frontend && npm start
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 👥 Team
+##  Team
 
 Built for the love of code by David Mbaimbai.
 
