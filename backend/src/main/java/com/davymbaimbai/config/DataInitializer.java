@@ -33,9 +33,11 @@ public class DataInitializer {
             User user1 = createUser("john_doe", "user@example.com", "password", Role.USER);
             User user2 = createUser("jane_smith", "jane@example.com", "password", Role.USER);
             User user3 = createUser("bob_wilson", "bob@example.com", "password", Role.USER);
+            
             List<User> users = userRepository.saveAll(List.of(admin, user1, user2, user3));
             log.info("Created {} users", users.size());
             createSampleTasks(users);
+            
             log.info("Sample data initialization completed");
         } else {
             log.info("Data already exists, skipping initialization");

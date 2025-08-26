@@ -11,6 +11,7 @@ import com.davymbaimbai.service.TaskActivityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -25,11 +26,13 @@ public class TaskController {
     private final TaskActivityService taskActivityService;
     
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Response<Task>> createTask(@Valid @RequestBody TaskRequest taskRequest) {
         return ResponseEntity.ok(taskService.createTask(taskRequest));
     }
     
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Response<Task>> updateTask(@PathVariable Long id, @RequestBody TaskRequest taskRequest) {
         taskRequest.setId(id);
         return ResponseEntity.ok(taskService.updateTask(taskRequest));
@@ -46,6 +49,7 @@ public class TaskController {
     }
     
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Response<List<Task>>> getAllTasks() {
         return ResponseEntity.ok(taskService.getAllTasks());
     }
@@ -56,9 +60,12 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Response<Void>> deleteTask(@PathVariable Long id) {
         return ResponseEntity.ok(taskService.deleteTask(id));
     }
+
+    // Comment endpoints
     @PostMapping("/{id}/comments")
     public ResponseEntity<Response<CommentResponse>> addComment(@PathVariable Long id, @Valid @RequestBody CommentRequest commentRequest) {
         return ResponseEntity.ok(taskCommentService.addComment(id, commentRequest));

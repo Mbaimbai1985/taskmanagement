@@ -22,19 +22,29 @@ const TaskFormPage = () => {
     const [users, setUsers] = useState([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-
     const { toasts, removeToast, showSuccess, showError, showInfo } = useToast();
 
     useEffect(() => {
         const fetchData = async () => {
+            try {
+                const isAdmin = await ApiService.isAdmin();
+                if (!isAdmin) {
+                    showError('Access denied. Only administrators can create or edit tasks.');
+                    setTimeout(() => navigate('/tasks'), 2000);
+                    return;
+                }
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+                showError('Authentication error. Please log in again.');
+                setTimeout(() => navigate('/login'), 2000);
+                return;
+            }
             setLoading(true);
             try {
                 const usersResponse = await ApiService.getAllUsers();
                 if (usersResponse.statusCode === 200) {
                     setUsers(usersResponse.data);
                 }
-
-                // If editing, fetch the task data
                 if (isEdit) {
                     const taskResponse = await ApiService.getTaskById(id);
                     if (taskResponse.statusCode === 200) {
@@ -90,7 +100,6 @@ const TaskFormPage = () => {
         try {
             const submitData = {
                 ...formData,
-                // Convert status back to completed for backward compatibility if needed
                 completed: formData.status === 'DONE'
             };
 
@@ -104,7 +113,6 @@ const TaskFormPage = () => {
             }
 
             if (response.statusCode === 200) {
-                // Small delay to show success message before navigation
                 setTimeout(() => {
                     navigate('/tasks');
                 }, 1000);

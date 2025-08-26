@@ -42,7 +42,6 @@ const AdminTasksPage = () => {
         
         checkAdminStatus();
     }, [navigate]);
-
     if (isAdmin === null) {
         return (
             <div className="admin-dashboard">
@@ -112,14 +111,11 @@ const AdminTasksPage = () => {
         let assigneeMatch = true;
         if (selectedAssignee) {
             if (selectedAssignee === 'unassigned') {
-                // Show only unassigned tasks (no assignee)
                 assigneeMatch = !task.assigneeId;
             } else {
-                // Show tasks assigned to specific user
                 assigneeMatch = task.assigneeId?.toString() === selectedAssignee;
             }
         }
-        // If no assignee filter selected, show all tasks
         
         return statusMatch && assigneeMatch;
     });
@@ -134,11 +130,9 @@ const AdminTasksPage = () => {
         return creator ? creator.username : 'Unknown';
     };
 
-    // Group tasks by assignee and status for kanban view
     const getTasksByUserAndStatus = () => {
         const userGroups = {};
-        
-        // Initialize with all users
+
         users.forEach(user => {
             userGroups[user.id] = {
                 user: user,
@@ -147,16 +141,13 @@ const AdminTasksPage = () => {
                 DONE: []
             };
         });
-        
-        // Add unassigned group
+
         userGroups['unassigned'] = {
             user: { id: 'unassigned', username: 'Unassigned' },
             TODO: [],
             IN_PROGRESS: [],
             DONE: []
         };
-        
-        // Group filtered tasks
         filteredTasks.forEach(task => {
             const assigneeKey = task.assigneeId || 'unassigned';
             if (userGroups[assigneeKey]) {
@@ -229,8 +220,6 @@ const AdminTasksPage = () => {
             </div>
 
             {error && <div className="error-message">{error}</div>}
-
-            {/* Filter Controls */}
             <div className="filter-controls">
                 <div className="filter-group">
                     <label htmlFor="viewMode">View Mode:</label>

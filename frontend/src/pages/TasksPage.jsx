@@ -6,7 +6,6 @@ import TaskDetails from '../components/TaskDetails';
 import { ToastContainer } from '../components/Toast';
 import useToast from '../hooks/useToast';
 
-// Drag and Drop imports
 import { DndContext, DragOverlay, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, useDroppable } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
@@ -14,7 +13,6 @@ import SortableTaskItem from '../components/SortableTaskItem';
 import DroppableColumn from '../components/DroppableColumn';
 
 const TasksPage = () => {
-    // ... existing states
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -33,36 +31,23 @@ const TasksPage = () => {
         canComment: false,
         canMoveStatus: false
     });
-
-    // Drag and Drop state
     const [activeTask, setActiveTask] = useState(null);
-    
-    // Toast notifications
     const { toasts, removeToast, showSuccess, showError, showWarning } = useToast();
 
     const navigate = useNavigate();
-
-    // Helper function to get just the first name from username
     const getDisplayName = (username) => {
         if (!username || username.trim() === '') return 'User';
-        
-        // Show first name only for all users
         const trimmedUsername = username.trim();
         const firstName = trimmedUsername.split(' ')[0];
         return firstName || 'User';
     };
-
-    // DND Sensors
     const sensors = useSensors(
         useSensor(PointerSensor),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,
         })
     );
-
-    // ... existing useEffect and functions remain the same
     useEffect(() => {
-        // Check authentication first
         if (!ApiService.isAuthenticated()) {
             navigate('/login');
             return;
@@ -71,8 +56,6 @@ const TasksPage = () => {
         fetchTasks();
         fetchUsers();
         fetchUserInfo();
-        
-        // Setup WebSocket connection
         WebSocketService.connect()
             .then(() => {
                 console.log('WebSocket connected successfully');
@@ -84,10 +67,7 @@ const TasksPage = () => {
             })
             .catch((error) => {
                 console.warn('WebSocket connection failed:', error.message);
-                // App continues to work without real-time updates
             });
-
-        // Cleanup on unmount
         return () => {
             WebSocketService.disconnect();
         };
@@ -95,7 +75,6 @@ const TasksPage = () => {
 
     const fetchTasks = async () => {
         try {
-            // For My Tasks page, get user's own tasks
             const response = await ApiService.getAllMyTasks();
             setTasks(response.data || []);
         } catch (error) {
@@ -122,24 +101,20 @@ const TasksPage = () => {
             const currentUser = await ApiService.getUserRole();
 
             setUserInfo(currentUser);
-            
-            // Set permissions based on user role
             const isAdmin = currentUser.role === 'ADMIN';
             setPermissions({
-                canCreateTasks: true, // All authenticated users can create tasks
-                canUpdateTasks: isAdmin, // Only admins can update all tasks
-                canDeleteTasks: isAdmin, // Only admins can delete tasks
-                canAssignTasks: isAdmin, // Only admins can assign tasks
-                canViewAllTasks: isAdmin, // Only admins can view all tasks
-                canComment: true, // All users can comment
-                canMoveStatus: true // All users can move task status
+                canCreateTasks: isAdmin,
+                canUpdateTasks: isAdmin,
+                canDeleteTasks: isAdmin,
+                canAssignTasks: isAdmin,
+                canViewAllTasks: isAdmin,
+                canComment: true,
+                canMoveStatus: trisAdmin
             });
         } catch (error) {
             console.error('Error fetching user info:', error);
         }
     };
-
-    // Filter tasks based on status and assignee
     const filteredTasks = tasks.filter(task => {
         const matchesStatus = statusFilter === 'ALL' || task.status === statusFilter;
         const matchesAssignee = assigneeFilter === 'ALL' || 
@@ -147,15 +122,11 @@ const TasksPage = () => {
             (task.assignee && task.assignee.id.toString() === assigneeFilter);
         return matchesStatus && matchesAssignee;
     });
-
-    // Group tasks by status for Kanban view
     const groupedTasks = {
         TODO: filteredTasks.filter(task => task.status === 'TODO'),
         IN_PROGRESS: filteredTasks.filter(task => task.status === 'IN_PROGRESS'),
         DONE: filteredTasks.filter(task => task.status === 'DONE')
     };
-
-    // Drag and Drop handlers
     const handleDragStart = (event) => {
         setActiveTask(tasks.find(task => task.id === event.active.id));
     };
@@ -171,14 +142,11 @@ const TasksPage = () => {
         const task = tasks.find(t => t.id === taskId);
 
         if (!task || task.status === newStatus) return;
-
-        // Optimistic update
         setTasks(prev => prev.map(t => 
             t.id === taskId ? { ...t, status: newStatus } : t
         ));
 
         try {
-            // Update task status on backend
             const updateData = {
                 id: task.id,
                 title: task.title,
@@ -189,8 +157,6 @@ const TasksPage = () => {
             };
 
             await ApiService.updateTask(updateData);
-            
-            // Show success message
             const statusDisplayNames = {
                 'TODO': 'To Do',
                 'IN_PROGRESS': 'In Progress',
@@ -199,7 +165,6 @@ const TasksPage = () => {
             showSuccess(`Task "${task.title}" moved to ${statusDisplayNames[newStatus]}`);
         } catch (error) {
             console.error('Error updating task status:', error);
-            // Revert optimistic update on error
             setTasks(prev => prev.map(t => 
                 t.id === taskId ? { ...t, status: task.status } : t
             ));
@@ -210,11 +175,9 @@ const TasksPage = () => {
     };
 
     const handleTaskClick = (task) => {
-        // If user is admin, navigate to edit page for task assignment
         if (userInfo?.role === 'ADMIN') {
             navigate(`/tasks/edit/${task.id}`);
         } else {
-            // Regular users see the task details modal
             setSelectedTask(task);
             setShowTaskDetails(true);
         }

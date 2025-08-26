@@ -20,7 +20,6 @@ class WebSocketService {
                 reject(new Error('User not authenticated'));
                 return;
             }
-
             const token = ApiService.getToken();
             const connectHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 

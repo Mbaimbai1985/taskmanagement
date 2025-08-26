@@ -19,6 +19,7 @@ export default class ApiService {
     
     static logout() {
         localStorage.removeItem("token");
+        // Clear user data from any caches
         window.location.href = "/login";
     }
     
@@ -82,6 +83,7 @@ export default class ApiService {
     }
 
 
+    //Register USER
     static async registerUser(body) {
         const resp = await axios.post(`${this.API_URL}/auth/register`, body);
         return resp.data;
@@ -161,7 +163,6 @@ export default class ApiService {
     });
     return resp.data;
   }
-
   static async getTasksWithFilters(status, assigneeId) {
     const resp = await axios.get(`${this.API_URL}/tasks`, {
       headers: this.getHeader(),
@@ -259,5 +260,6 @@ export default class ApiService {
     });
     return resp.data;
   }
+
 
 }

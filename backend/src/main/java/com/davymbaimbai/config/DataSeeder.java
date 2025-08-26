@@ -33,8 +33,6 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         log.info("Starting data seeding...");
-
-        // Check if data already exists
         if (userRepository.count() > 0) {
             log.info("Data already exists, skipping seeding");
             return;
@@ -49,24 +47,18 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedUsers() {
         log.info("Seeding users...");
-
-        // Create Admin User
         User admin = User.builder()
                 .username("admin")
                 .email("admin@example.com")
                 .password(passwordEncoder.encode("admin123"))
                 .role(Role.ADMIN)
                 .build();
-
-        // Create Regular User
         User user = User.builder()
                 .username("user")
                 .email("user@example.com")
                 .password(passwordEncoder.encode("user123"))
                 .role(Role.USER)
                 .build();
-
-        // Create Additional Users for variety
         User alice = User.builder()
                 .username("alice")
                 .email("alice@example.com")
@@ -93,11 +85,8 @@ public class DataSeeder implements CommandLineRunner {
         User user1 = users.stream().filter(u -> "user".equals(u.getUsername())).findFirst().orElse(users.get(1));
         User alice = users.stream().filter(u -> "alice".equals(u.getUsername())).findFirst().orElse(users.get(2));
         User bob = users.stream().filter(u -> "bob".equals(u.getUsername())).findFirst().orElse(users.get(3));
-
         Random random = new Random();
         LocalDateTime now = LocalDateTime.now();
-
-        // Sample tasks with realistic data
         Task[] sampleTasks = {
             Task.builder()
                 .title("Set up project infrastructure")

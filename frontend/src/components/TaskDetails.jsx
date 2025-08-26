@@ -12,7 +12,7 @@ const TaskDetails = ({ task, onClose, onTaskUpdate }) => {
   const [editingComment, setEditingComment] = useState(null);
   const [editCommentText, setEditCommentText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('comments'); // 'comments' or 'activity'
+  const [activeTab, setActiveTab] = useState('comments');
   const [permissions, setPermissions] = useState({
     canComment: false,
     canUpdateTask: false,
@@ -23,10 +23,10 @@ const TaskDetails = ({ task, onClose, onTaskUpdate }) => {
   useEffect(() => {
     loadComments();
     loadPermissions();
-    const unsubscribe = WebSocketService.subscribeToTaskComments(task.id, handleCommentUpdate);
+    const subscription = WebSocketService.subscribeToTaskComments(task.id, handleCommentUpdate);
     
     return () => {
-      if (unsubscribe) unsubscribe();
+      WebSocketService.unsubscribeFromTaskComments(task.id);
     };
   }, [task.id]);
 

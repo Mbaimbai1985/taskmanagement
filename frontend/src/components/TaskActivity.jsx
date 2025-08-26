@@ -11,12 +11,10 @@ const TaskActivity = ({ taskId, isVisible }) => {
     useEffect(() => {
         if (isVisible && taskId) {
             fetchActivities();
-            const unsubscribe = WebSocketService.subscribeToTaskActivities(taskId, handleActivityUpdate);
+            const subscription = WebSocketService.subscribeToTaskActivities(taskId, handleActivityUpdate);
             
             return () => {
-                if (unsubscribe) {
-                    WebSocketService.unsubscribeFromTaskActivities(taskId);
-                }
+                WebSocketService.unsubscribeFromTaskActivities(taskId);
             };
         }
     }, [taskId, isVisible]);

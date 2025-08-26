@@ -16,7 +16,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByUser(User user, Sort sort);
     List<Task> findByCreator(User creator, Sort sort);
     List<Task> findByAssignee(User assignee, Sort sort);
+    
+    // Backward compatibility methods
     List<Task> findByPriorityAndUser(Priority priority, User user, Sort sort);
+    
+    // New methods for assignment requirements
     List<Task> findByStatus(TaskStatus status, Sort sort);
     List<Task> findByStatusAndAssignee(TaskStatus status, User assignee, Sort sort);
     List<Task> findByStatusAndCreator(TaskStatus status, User creator, Sort sort);

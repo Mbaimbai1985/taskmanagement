@@ -10,7 +10,7 @@ const Toast = ({ message, type = 'info', duration = 3000, onClose }) => {
         setIsVisible(false);
         setTimeout(() => {
           onClose && onClose();
-        }, 300); // Wait for fade out animation
+        }, 300);
       }, duration);
 
       return () => clearTimeout(timer);

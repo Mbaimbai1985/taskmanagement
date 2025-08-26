@@ -23,8 +23,6 @@ const useToast = () => {
   const clearAllToasts = useCallback(() => {
     setToasts([]);
   }, []);
-
-  // Convenience methods for different toast types
   const showSuccess = useCallback((message, duration = 4000) => {
     return addToast(message, 'success', duration);
   }, [addToast]);
