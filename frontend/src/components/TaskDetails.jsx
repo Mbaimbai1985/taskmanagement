@@ -93,7 +93,7 @@ const TaskDetails = ({ task, onClose, onTaskUpdate }) => {
       if (response.statusCode === 200) {
         setEditingComment(null);
         setEditCommentText('');
-        loadComments(); // Refresh comments
+        loadComments();
       }
     } catch (error) {
       console.error('Error updating comment:', error);

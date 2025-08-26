@@ -19,7 +19,6 @@ export default class ApiService {
     
     static logout() {
         localStorage.removeItem("token");
-        // Clear user data from any caches
         window.location.href = "/login";
     }
     
@@ -82,8 +81,6 @@ export default class ApiService {
         }
     }
 
-
-    //Register USER
     static async registerUser(body) {
         const resp = await axios.post(`${this.API_URL}/auth/register`, body);
         return resp.data;
@@ -103,7 +100,7 @@ export default class ApiService {
 
 
   static async createTask(body) {
-    console.log('Creating task with data:', body); // Debug log
+    console.log('Creating task with data:', body);
     const resp = await axios.post(`${this.API_URL}/tasks`, body, {
       headers: this.getHeader()
     });
@@ -112,7 +109,7 @@ export default class ApiService {
 
 
   static async updateTask(body) {
-    console.log('Updating task with data:', body); // Debug log
+    console.log('Updating task with data:', body);
     const resp = await axios.put(`${this.API_URL}/tasks/${body.id}`, body, {
       headers: this.getHeader()
     });

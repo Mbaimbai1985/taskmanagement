@@ -42,7 +42,6 @@ const Toast = ({ message, type = 'info', duration = 3000, onClose }) => {
   );
 };
 
-// Toast Container to manage multiple toasts
 export const ToastContainer = ({ toasts, removeToast }) => {
   return (
     <div className="toast-container">

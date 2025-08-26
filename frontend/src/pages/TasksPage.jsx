@@ -202,7 +202,6 @@ const TasksPage = () => {
         );
     };
 
-    // UI permissions
     const canCreateTasks = permissions.canCreateTasks;
 
     if (loading) {

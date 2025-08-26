@@ -8,7 +8,7 @@ const Navbar = () => {
     const [isAdmin, setIsAdmin] = useState(false);
     const navigate = useNavigate();
     const getDisplayName = (username) => {
-        console.log('getDisplayName called with username:', username); // Debug
+        console.log('getDisplayName called with username:', username);
         
         if (!username || username.trim() === '') {
             console.log('Username is empty, returning User');

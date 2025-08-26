@@ -351,7 +351,6 @@ const AdminTasksPage = () => {
                     )}
                 </div>
             ) : (
-                // Kanban view by user and status
                 <div className="user-kanban-view">
                     {Object.keys(getTasksByUserAndStatus()).length === 0 ? (
                         <p className="no-tasks">No tasks found matching the selected filters.</p>
