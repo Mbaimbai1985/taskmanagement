@@ -40,6 +40,12 @@ class TaskServiceTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private TaskActivityService taskActivityService;
+
+    @Mock
+    private WebSocketService webSocketService;
+
     @InjectMocks
     private TasksServiceImpl taskService;
 
@@ -87,7 +93,9 @@ class TaskServiceTest {
     void createTask_Success() {
         when(userService.getCurrentLoggedInUser()).thenReturn(testUser);
         when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+
         Response<Task> response = taskService.createTask(taskRequest);
+
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         assertEquals("Task Created Successfully", response.getMessage());
@@ -101,7 +109,9 @@ class TaskServiceTest {
         when(userService.getCurrentLoggedInUser()).thenReturn(testUser);
         when(userRepository.findById(2L)).thenReturn(Optional.of(assigneeUser));
         when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+
         Response<Task> response = taskService.createTask(taskRequest);
+
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         verify(userRepository, times(1)).findById(2L);
@@ -113,7 +123,9 @@ class TaskServiceTest {
         List<Task> tasks = Arrays.asList(testTask);
         when(userService.getCurrentLoggedInUser()).thenReturn(testUser);
         when(taskRepository.findByUser(eq(testUser), any(Sort.class))).thenReturn(tasks);
+
         Response<List<Task>> response = taskService.getAllMyTasks();
+
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         assertEquals("Tasks retrieved successfully", response.getMessage());
@@ -123,32 +135,39 @@ class TaskServiceTest {
 
     @Test
     void updateTask_Success() {
-
         taskRequest.setId(1L);
         taskRequest.setTitle("Updated Task");
         testTask.setCreator(testUser);
-        
+
         when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
         when(userService.getCurrentLoggedInUser()).thenReturn(testUser);
         when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+
         Response<Task> response = taskService.updateTask(taskRequest);
+
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         assertEquals("Task updated successfully", response.getMessage());
         verify(taskRepository, times(1)).findById(1L);
         verify(taskRepository, times(1)).save(any(Task.class));
+        verify(taskActivityService, atLeastOnce()).logTaskUpdated(eq(1L), eq(1L), anyString());
     }
 
     @Test
     void deleteTask_Success() {
-        when(taskRepository.existsById(1L)).thenReturn(true);
-        Response<Void> response = taskService.deleteTask(1L);
+        Long taskId = 1L;
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(testTask));
+        when(userService.getCurrentLoggedInUser()).thenReturn(testUser);
+        Response<Void> response = taskService.deleteTask(taskId);
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         assertEquals("task deleted successfully", response.getMessage());
-        verify(taskRepository, times(1)).existsById(1L);
-        verify(taskRepository, times(1)).deleteById(1L);
+        verify(taskRepository, times(1)).findById(taskId);
+        verify(taskRepository, times(1)).deleteById(taskId);
+        verify(taskActivityService, times(1)).logTaskDeleted(eq(taskId), eq(testUser.getId()));
+        verify(webSocketService, times(1)).broadcastTaskUpdate(eq(testTask), eq("TASK_DELETED"), eq(testUser.getUsername()));
     }
+
 
     @Test
     void getTasksWithFilters_Success() {
@@ -156,7 +175,9 @@ class TaskServiceTest {
         when(userService.getCurrentLoggedInUser()).thenReturn(testUser);
         when(taskRepository.findTasksWithFilters(eq(TaskStatus.TODO), isNull(), eq(testUser), any(Sort.class)))
                 .thenReturn(tasks);
+
         Response<List<Task>> response = taskService.getTasksWithFilters("TODO", null);
+
         assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
         assertEquals("Tasks filtered successfully", response.getMessage());
