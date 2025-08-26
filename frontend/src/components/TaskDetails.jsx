@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ApiService from '../api/ApiService';
 import WebSocketService from '../services/WebSocketService';
 import './TaskDetails.css';
 
 const TaskDetails = ({ task, onClose, onTaskUpdate }) => {
+  const navigate = useNavigate();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [editingComment, setEditingComment] = useState(null);
@@ -156,12 +158,23 @@ const TaskDetails = ({ task, onClose, onTaskUpdate }) => {
     }
   };
 
+  const handleEditTask = () => {
+    navigate(`/tasks/edit/${task.id}`);
+  };
+
   return (
     <div className="task-details-overlay">
       <div className="task-details-modal">
         <div className="task-details-header">
           <h2>{task.title}</h2>
-          <button className="close-button" onClick={onClose}>&times;</button>
+          <div className="header-actions">
+            {permissions.canUpdateTask && (
+              <button className="edit-task-button" onClick={handleEditTask}>
+                Edit Task
+              </button>
+            )}
+            <button className="close-button" onClick={onClose}>&times;</button>
+          </div>
         </div>
 
         <div className="task-details-content">

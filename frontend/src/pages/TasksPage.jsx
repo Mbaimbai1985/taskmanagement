@@ -195,7 +195,7 @@ const TasksPage = () => {
     }
 
     return (
-        <div className="tasks-page">
+        <div className="tasks-container">
             <div className="tasks-header">
                 <div className="header-content">
                     <h1>My Tasks</h1>
@@ -209,7 +209,7 @@ const TasksPage = () => {
                 </div>
                 
                 {canCreateTasks && (
-                    <Link to="/create-task" className="create-task-btn">
+                    <Link to="/tasks/add" className="create-task-btn">
                         + Create Task
                     </Link>
                 )}

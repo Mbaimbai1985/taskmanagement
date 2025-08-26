@@ -66,6 +66,23 @@ body {
   color: #ffcc80;
 }
 
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.user-name {
+  font-weight: 600;
+  color: white;
+}
+
+.user-role {
+  color: #b3d9db;
+  font-size: 13px;
+}
+
 
 
 

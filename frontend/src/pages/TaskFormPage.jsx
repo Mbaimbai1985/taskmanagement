@@ -42,7 +42,7 @@ const TaskFormPage = () => {
                             description: task.description || '',
                             priority: task.priority || 'MEDIUM',
                             status: task.status || (task.completed ? 'DONE' : 'TODO'),
-                            assigneeId: task.assigneeId || '',
+                            assigneeId: task.assignee?.id || task.assigneeId || '',
                             completed: task.completed || false
                         });
                     } else {
