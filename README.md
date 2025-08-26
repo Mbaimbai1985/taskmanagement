@@ -471,7 +471,7 @@ Authorization: Bearer {token}
 }
 ```
 
-## 🔌 WebSocket Endpoints
+##  WebSocket Endpoints
 
 ### Task Updates
 - **Topic**: `/topic/tasks`
