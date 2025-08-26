@@ -11,6 +11,7 @@ import com.davymbaimbai.exceptions.NotFoundException;
 import com.davymbaimbai.repository.TaskCommentRepository;
 import com.davymbaimbai.repository.TaskRepository;
 import com.davymbaimbai.service.TaskCommentService;
+import com.davymbaimbai.service.TaskActivityService;
 import com.davymbaimbai.service.UserService;
 import com.davymbaimbai.service.WebSocketService;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,9 @@ public class TaskCommentServiceImpl implements TaskCommentService {
     
     @Autowired
     private WebSocketService webSocketService;
+    
+    @Autowired
+    private TaskActivityService taskActivityService;
 
     @Override
     public Response<CommentResponse> addComment(Long taskId, CommentRequest commentRequest) {
@@ -50,6 +54,10 @@ public class TaskCommentServiceImpl implements TaskCommentService {
         comment.setUser(currentUser);
         comment.setComment(commentRequest.getComment());
         TaskComment savedComment = commentRepository.save(comment);
+        
+        // Log comment activity
+        taskActivityService.logCommentAdded(taskId, currentUser.getId(), commentRequest.getComment());
+        
         webSocketService.broadcastTaskComment(taskId, commentRequest.getComment(), currentUser.getUsername());
         CommentResponse response = CommentResponse.builder()
                 .id(savedComment.getId())

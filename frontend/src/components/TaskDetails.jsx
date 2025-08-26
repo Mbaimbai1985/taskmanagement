@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ApiService from '../api/ApiService';
 import WebSocketService from '../services/WebSocketService';
+import TaskActivity from './TaskActivity';
 import './TaskDetails.css';
 
 const TaskDetails = ({ task, onClose, onTaskUpdate }) => {
@@ -11,6 +12,7 @@ const TaskDetails = ({ task, onClose, onTaskUpdate }) => {
   const [editingComment, setEditingComment] = useState(null);
   const [editCommentText, setEditCommentText] = useState('');
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('comments'); // 'comments' or 'activity'
   const [permissions, setPermissions] = useState({
     canComment: false,
     canUpdateTask: false,
@@ -21,7 +23,6 @@ const TaskDetails = ({ task, onClose, onTaskUpdate }) => {
   useEffect(() => {
     loadComments();
     loadPermissions();
-
     const unsubscribe = WebSocketService.subscribeToTaskComments(task.id, handleCommentUpdate);
     
     return () => {
@@ -73,7 +74,7 @@ const TaskDetails = ({ task, onClose, onTaskUpdate }) => {
       const response = await ApiService.addComment(task.id, newComment.trim());
       if (response.statusCode === 201) {
         setNewComment('');
-        loadComments(); // Refresh comments
+        loadComments();
       }
     } catch (error) {
       console.error('Error adding comment:', error);
@@ -234,43 +235,67 @@ const TaskDetails = ({ task, onClose, onTaskUpdate }) => {
           </div>
 
           <div className="comments-section">
-            <h3>Comments ({comments.length})</h3>
+            <div className="section-tabs">
+              <button 
+                className={`tab-btn ${activeTab === 'comments' ? 'active' : ''}`}
+                onClick={() => setActiveTab('comments')}
+              >
+                Comments ({comments.length})
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === 'activity' ? 'active' : ''}`}
+                onClick={() => setActiveTab('activity')}
+              >
+                Activity Feed
+              </button>
+            </div>
             
-            {permissions.canComment && (
-              <form className="add-comment-form" onSubmit={handleAddComment}>
-                <textarea
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Add a comment..."
-                  rows={3}
-                  disabled={loading}
-                />
-                <button type="submit" disabled={!newComment.trim() || loading}>
-                  {loading ? 'Adding...' : 'Add Comment'}
-                </button>
-              </form>
+            {activeTab === 'comments' && (
+              <>
+                {permissions.canComment && (
+                  <form className="add-comment-form" onSubmit={handleAddComment}>
+                    <textarea
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Add a comment..."
+                      rows={3}
+                      disabled={loading}
+                    />
+                    <button type="submit" disabled={!newComment.trim() || loading}>
+                      {loading ? 'Adding...' : 'Add Comment'}
+                    </button>
+                  </form>
+                )}
+              </>
             )}
 
-            <div className="comments-list">
-              {comments.length === 0 ? (
-                <p className="no-comments">No comments yet</p>
-              ) : (
-                comments.map((comment) => (
-                  <CommentItem
-                    key={comment.id}
-                    comment={comment}
-                    editingComment={editingComment}
-                    editCommentText={editCommentText}
-                    onStartEdit={startEditing}
-                    onCancelEdit={cancelEditing}
-                    onSaveEdit={handleEditComment}
-                    onDelete={handleDeleteComment}
-                    onEditTextChange={setEditCommentText}
-                    loading={loading}
-                  />
-                ))
-              )}
-            </div>
+            {activeTab === 'comments' && (
+              <div className="comments-list">
+                {comments.length === 0 ? (
+                  <p className="no-comments">No comments yet</p>
+                ) : (
+                  comments.map((comment) => (
+                    <CommentItem
+                      key={comment.id}
+                      comment={comment}
+                      editingComment={editingComment}
+                      editCommentText={editCommentText}
+                      onStartEdit={startEditing}
+                      onCancelEdit={cancelEditing}
+                      onSaveEdit={handleEditComment}
+                      onDelete={handleDeleteComment}
+                      onEditTextChange={setEditCommentText}
+                      loading={loading}
+                    />
+                  ))
+                )}
+              </div>
+            )}
+
+            <TaskActivity 
+              taskId={task.id} 
+              isVisible={activeTab === 'activity'} 
+            />
           </div>
         </div>
       </div>

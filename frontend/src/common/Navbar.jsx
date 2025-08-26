@@ -14,8 +14,6 @@ const Navbar = () => {
             console.log('Username is empty, returning User');
             return 'User';
         }
-        
-        // Show first name only for all users
         const trimmedUsername = username.trim();
         const firstName = trimmedUsername.split(' ')[0];
         console.log('Returning first name:', firstName);
@@ -25,7 +23,7 @@ const Navbar = () => {
     useEffect(() => {
         const checkAuth = async () => {
             const authStatus = ApiService.isAuthenticated();
-            console.log('Navbar auth check - authenticated:', authStatus); // Debug
+            console.log('Navbar auth check - authenticated:', authStatus);
             setIsAuthenticated(authStatus);
             
             if (authStatus) {
@@ -35,36 +33,30 @@ const Navbar = () => {
                     
                     const currentUser = await ApiService.getUserRole();
                     setUserInfo(currentUser);
-                    console.log('Navbar auth check - user info loaded:', currentUser); // Debug
+                    console.log('Navbar auth check - user info loaded:', currentUser);
                 } catch (error) {
                     console.error('Error fetching user info:', error);
-                    // If there's an error getting user info, user might not be properly authenticated
                     setIsAuthenticated(false);
                     setIsAdmin(false);
                     setUserInfo(null);
                 }
             } else {
-                // Clear state when not authenticated
                 setIsAdmin(false);
                 setUserInfo(null);
             }
         };
 
         checkAuth();
-        
-        // Listen for storage changes (when token is saved/removed)
         const handleStorageChange = (e) => {
             if (e.key === 'token') {
-                console.log('Token storage changed, re-checking auth'); // Debug
+                console.log('Token storage changed, re-checking auth');
                 checkAuth();
             }
         };
         
         window.addEventListener('storage', handleStorageChange);
-        
-        // Also listen for a custom event we can trigger after login
         const handleAuthChange = () => {
-            console.log('Auth change event triggered'); // Debug
+            console.log('Auth change event triggered');
             checkAuth();
         };
         
@@ -80,8 +72,6 @@ const Navbar = () => {
         const isLogout = window.confirm("Are you sure you want to logout?");
         if (isLogout) {
             ApiService.logout();
-            
-            // Trigger navbar to re-check authentication
             window.dispatchEvent(new Event('authChange'));
             
             navigate("/");

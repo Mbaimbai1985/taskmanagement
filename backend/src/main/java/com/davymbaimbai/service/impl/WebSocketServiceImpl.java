@@ -1,6 +1,7 @@
 package com.davymbaimbai.service.impl;
 
 import com.davymbaimbai.entity.Task;
+import com.davymbaimbai.entity.TaskActivity;
 import com.davymbaimbai.dto.TaskActivityDto;
 import com.davymbaimbai.service.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,5 +56,24 @@ public class WebSocketServiceImpl implements WebSocketService {
                 .build();
         
         messagingTemplate.convertAndSend("/topic/tasks", activity);
+    }
+
+    @Override
+    public void broadcastTaskActivity(TaskActivity activity) {
+        TaskActivityDto activityDto = TaskActivityDto.builder()
+                .taskId(activity.getTask().getId())
+                .action(activity.getActivityType().toString())
+                .username(activity.getUser().getUsername())
+                .taskTitle(activity.getTask().getTitle())
+                .timestamp(activity.getCreatedAt())
+                .oldStatus(activity.getOldValue())
+                .newStatus(activity.getNewValue())
+                .comment(activity.getNewValue()) // For comment activities
+                .build();
+        
+        // Broadcast to task-specific activity feed
+        messagingTemplate.convertAndSend("/topic/tasks/" + activity.getTask().getId() + "/activities", activityDto);
+        // Broadcast to general task updates
+        messagingTemplate.convertAndSend("/topic/tasks", activityDto);
     }
 }

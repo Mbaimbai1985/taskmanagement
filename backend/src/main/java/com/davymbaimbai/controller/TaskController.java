@@ -4,8 +4,10 @@ import com.davymbaimbai.dto.TaskRequest;
 import com.davymbaimbai.dto.CommentRequest;
 import com.davymbaimbai.dto.CommentResponse;
 import com.davymbaimbai.entity.Task;
+import com.davymbaimbai.entity.TaskActivity;
 import com.davymbaimbai.service.TaskService;
 import com.davymbaimbai.service.TaskCommentService;
+import com.davymbaimbai.service.TaskActivityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ public class TaskController {
 
     private final TaskService taskService;
     private final TaskCommentService taskCommentService;
+    private final TaskActivityService taskActivityService;
     
     @PostMapping
     public ResponseEntity<Response<Task>> createTask(@Valid @RequestBody TaskRequest taskRequest) {
@@ -75,6 +78,7 @@ public class TaskController {
     public ResponseEntity<Response<Void>> deleteComment(@PathVariable Long commentId) {
         return ResponseEntity.ok(taskCommentService.deleteComment(commentId));
     }
+
     @GetMapping("/status")
     public ResponseEntity<Response<List<Task>>> getMyTasksByCompletionStatus(
             @RequestParam boolean completed
@@ -87,6 +91,10 @@ public class TaskController {
             @RequestParam String priority
     ) {
         return ResponseEntity.ok(taskService.getMyTasksByPriority(priority));
+    }
+    @GetMapping("/{taskId}/activities")
+    public ResponseEntity<Response<List<TaskActivity>>> getTaskActivities(@PathVariable Long taskId) {
+        return ResponseEntity.ok(taskActivityService.getTaskActivities(taskId));
     }
 
 }

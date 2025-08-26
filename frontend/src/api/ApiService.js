@@ -19,7 +19,6 @@ export default class ApiService {
     
     static logout() {
         localStorage.removeItem("token");
-        // Clear user data from any caches
         window.location.href = "/login";
     }
     
@@ -36,8 +35,6 @@ export default class ApiService {
             return resp.data;
         } catch (error) {
             console.error('Error fetching current user:', error);
-            
-            // If unauthorized or user not found, clear the invalid token
             if (error.response?.status === 401 || error.response?.status === 404) {
                 this.clearInvalidToken();
                 window.location.href = "/login";
@@ -52,7 +49,6 @@ export default class ApiService {
         if (!token) return null;
         
         try {
-            // Decode JWT token to get user info
             const payload = JSON.parse(atob(token.split('.')[1]));
             return payload;
         } catch (error) {
@@ -63,8 +59,8 @@ export default class ApiService {
 
     static async getUserRole() {
         const currentUser = await this.getCurrentUser();
-        console.log('Current User from API:', currentUser); // Debug log
-        return currentUser; // Return the full user object, not just the role
+        console.log('Current User from API:', currentUser);
+        return currentUser;
     }
 
     static async isAdmin() {
@@ -86,19 +82,16 @@ export default class ApiService {
     }
 
 
-    //Register USER
     static async registerUser(body) {
         const resp = await axios.post(`${this.API_URL}/auth/register`, body);
         return resp.data;
     }
 
-    //Login USER
     static async loginUser(body) {
         const resp = await axios.post(`${this.API_URL}/auth/login`, body);
         return resp.data;
     }
 
-    //Get all users for task assignment
     static async getAllUsers() {
         const resp = await axios.get(`${this.API_URL}/users`, {
             headers: this.getHeader()
@@ -107,8 +100,6 @@ export default class ApiService {
     }
 
 
-
-  //TASKS API
   static async createTask(body) {
     console.log('Creating task with data:', body); // Debug log
     const resp = await axios.post(`${this.API_URL}/tasks`, body, {
@@ -171,7 +162,6 @@ export default class ApiService {
     return resp.data;
   }
 
-  // New method for filtering tasks by status and assignee
   static async getTasksWithFilters(status, assigneeId) {
     const resp = await axios.get(`${this.API_URL}/tasks`, {
       headers: this.getHeader(),
@@ -190,7 +180,6 @@ export default class ApiService {
     return resp.data;
   }
 
-  // Comment-related methods
   static async addComment(taskId, comment) {
     const resp = await axios.post(`${this.API_URL}/tasks/${taskId}/comments`, { comment }, {
       headers: this.getHeader()
@@ -219,7 +208,6 @@ export default class ApiService {
     return resp.data;
   }
 
-  // Role-based permission methods
   static async canCreateTasks() {
     return await this.isAdmin();
   }
@@ -265,6 +253,11 @@ export default class ApiService {
     const isAdmin = await this.isAdmin();
     return isAdmin || (currentUser && currentUser.username === commentUsername);
   }
-
+  static async getTaskActivities(taskId) {
+    const resp = await axios.get(`${this.API_URL}/tasks/${taskId}/activities`, {
+      headers: this.getHeader()
+    });
+    return resp.data;
+  }
 
 }

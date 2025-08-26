@@ -15,12 +15,12 @@ class WebSocketService {
                 resolve();
                 return;
             }
-
             if (!ApiService.isAuthenticated()) {
                 console.warn('WebSocket: User not authenticated, skipping connection');
                 reject(new Error('User not authenticated'));
                 return;
             }
+
             const token = ApiService.getToken();
             const connectHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -118,8 +118,32 @@ class WebSocketService {
         }
     }
 
+    subscribeToTaskActivities(taskId, callback) {
+        if (!this.connected) {
+            console.error('WebSocket not connected');
+            return null;
+        }
+
+        const topic = `/topic/tasks/${taskId}/activities`;
+        const subscription = this.client.subscribe(topic, (message) => {
+            try {
+                const activityUpdate = JSON.parse(message.body);
+                callback(activityUpdate);
+            } catch (error) {
+                console.error('Error parsing activity update:', error);
+            }
+        });
+
+        this.subscriptions.set(`activities-${taskId}`, subscription);
+        return subscription;
+    }
+
     unsubscribeFromTaskComments(taskId) {
         this.unsubscribe(`comments-${taskId}`);
+    }
+
+    unsubscribeFromTaskActivities(taskId) {
+        this.unsubscribe(`activities-${taskId}`);
     }
 
     isConnected() {
@@ -127,5 +151,6 @@ class WebSocketService {
     }
 }
 
+// Create singleton instance
 const webSocketService = new WebSocketService();
 export default webSocketService;

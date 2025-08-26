@@ -10,6 +10,7 @@ import com.davymbaimbai.exceptions.NotFoundException;
 import com.davymbaimbai.repository.TaskRepository;
 import com.davymbaimbai.repository.UserRepository;
 import com.davymbaimbai.service.TaskService;
+import com.davymbaimbai.service.TaskActivityService;
 import com.davymbaimbai.service.UserService;
 import com.davymbaimbai.service.WebSocketService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class TasksServiceImpl implements TaskService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final WebSocketService webSocketService;
+    private final TaskActivityService taskActivityService;
     @Override
     public Response<Task> createTask(TaskRequest taskRequest) {
         log.info("INSIDE createTask()");
@@ -62,6 +64,14 @@ public class TasksServiceImpl implements TaskService {
                 .user(creator) // Keep for backward compatibility
                 .build();
         Task savedTask = taskRepository.save(taskToSave);
+        
+        // Log task creation activity
+        taskActivityService.logTaskCreated(savedTask.getId(), creator.getId());
+        
+        // Log assignment activity if task is assigned
+        if (assignee != null) {
+            taskActivityService.logTaskAssigned(savedTask.getId(), creator.getId(), assignee.getUsername());
+        }
         
         // Broadcast task creation via WebSocket
         webSocketService.broadcastTaskUpdate(savedTask, "TASK_CREATED", creator.getUsername());
@@ -112,8 +122,10 @@ public class TasksServiceImpl implements TaskService {
             throw new BadRequestException("You don't have permission to update this task");
         }
         
-        // Store original status for WebSocket notification
+        // Store original values for activity logging
         TaskStatus originalStatus = task.getStatus();
+        Priority originalPriority = task.getPriority();
+        User originalAssignee = task.getAssignee();
         
         if (taskRequest.getTitle() != null) task.setTitle(taskRequest.getTitle());
         if (taskRequest.getDescription() != null) task.setDescription(taskRequest.getDescription());
@@ -149,6 +161,50 @@ public class TasksServiceImpl implements TaskService {
         task.setUpdatedAt(LocalDateTime.now());
         Task updatedTask = taskRepository.save(task);
         
+        // Log activities for changes
+        boolean hasChanges = false;
+        
+        // Log status change
+        if (!originalStatus.equals(updatedTask.getStatus())) {
+            taskActivityService.logStatusChanged(updatedTask.getId(), currentUser.getId(), 
+                originalStatus.toString(), updatedTask.getStatus().toString());
+            hasChanges = true;
+        }
+        
+        // Log priority change
+        if (originalPriority != updatedTask.getPriority()) {
+            taskActivityService.logPriorityChanged(updatedTask.getId(), currentUser.getId(), 
+                originalPriority != null ? originalPriority.toString() : "None", 
+                updatedTask.getPriority() != null ? updatedTask.getPriority().toString() : "None");
+            hasChanges = true;
+        }
+        
+        // Log assignee change
+        if (!java.util.Objects.equals(originalAssignee, updatedTask.getAssignee())) {
+            if (originalAssignee != null && updatedTask.getAssignee() == null) {
+                // Unassigned
+                taskActivityService.logTaskUnassigned(updatedTask.getId(), currentUser.getId(), 
+                    originalAssignee.getUsername());
+            } else if (originalAssignee == null && updatedTask.getAssignee() != null) {
+                // Assigned
+                taskActivityService.logTaskAssigned(updatedTask.getId(), currentUser.getId(), 
+                    updatedTask.getAssignee().getUsername());
+            } else if (originalAssignee != null && updatedTask.getAssignee() != null) {
+                // Reassigned
+                taskActivityService.logTaskUnassigned(updatedTask.getId(), currentUser.getId(), 
+                    originalAssignee.getUsername());
+                taskActivityService.logTaskAssigned(updatedTask.getId(), currentUser.getId(), 
+                    updatedTask.getAssignee().getUsername());
+            }
+            hasChanges = true;
+        }
+        
+        // Log general update if there were other changes
+        if (hasChanges || taskRequest.getTitle() != null || taskRequest.getDescription() != null) {
+            taskActivityService.logTaskUpdated(updatedTask.getId(), currentUser.getId(), 
+                "Task details updated");
+        }
+        
         // Broadcast updates via WebSocket
         if (!originalStatus.equals(updatedTask.getStatus())) {
             // Status changed - broadcast status change
@@ -173,6 +229,9 @@ public class TasksServiceImpl implements TaskService {
                 .orElseThrow(() -> new NotFoundException("Task does not exists"));
         
         User currentUser = userService.getCurrentLoggedInUser();
+        
+        // Log task deletion activity before deleting
+        taskActivityService.logTaskDeleted(task.getId(), currentUser.getId());
         
         // Broadcast task deletion via WebSocket before deleting
         webSocketService.broadcastTaskUpdate(task, "TASK_DELETED", currentUser.getUsername());

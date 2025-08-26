@@ -42,6 +42,7 @@ const AdminTasksPage = () => {
         
         checkAdminStatus();
     }, [navigate]);
+
     if (isAdmin === null) {
         return (
             <div className="admin-dashboard">
@@ -49,7 +50,6 @@ const AdminTasksPage = () => {
             </div>
         );
     }
-
     if (!isAdmin) {
         return <Navigate to="/tasks" replace />;
     }
@@ -57,7 +57,7 @@ const AdminTasksPage = () => {
     const fetchAllTasks = async () => {
         try {
             setLoading(true);
-            setError(''); // Clear any previous errors
+            setError('');
             console.log('Fetching all tasks...');
             const response = await ApiService.getAllTasks();
             console.log('Tasks response:', response);
@@ -112,11 +112,14 @@ const AdminTasksPage = () => {
         let assigneeMatch = true;
         if (selectedAssignee) {
             if (selectedAssignee === 'unassigned') {
+                // Show only unassigned tasks (no assignee)
                 assigneeMatch = !task.assigneeId;
             } else {
+                // Show tasks assigned to specific user
                 assigneeMatch = task.assigneeId?.toString() === selectedAssignee;
             }
         }
+        // If no assignee filter selected, show all tasks
         
         return statusMatch && assigneeMatch;
     });
@@ -131,10 +134,11 @@ const AdminTasksPage = () => {
         return creator ? creator.username : 'Unknown';
     };
 
-
+    // Group tasks by assignee and status for kanban view
     const getTasksByUserAndStatus = () => {
         const userGroups = {};
-
+        
+        // Initialize with all users
         users.forEach(user => {
             userGroups[user.id] = {
                 user: user,
@@ -143,21 +147,22 @@ const AdminTasksPage = () => {
                 DONE: []
             };
         });
-
+        
+        // Add unassigned group
         userGroups['unassigned'] = {
             user: { id: 'unassigned', username: 'Unassigned' },
             TODO: [],
             IN_PROGRESS: [],
             DONE: []
         };
-
+        
+        // Group filtered tasks
         filteredTasks.forEach(task => {
             const assigneeKey = task.assigneeId || 'unassigned';
             if (userGroups[assigneeKey]) {
                 userGroups[assigneeKey][task.status].push(task);
             }
         });
-
         if (selectedAssignee) {
             if (selectedAssignee === 'unassigned') {
                 return { unassigned: userGroups.unassigned };
@@ -165,7 +170,6 @@ const AdminTasksPage = () => {
                 return { [selectedAssignee]: userGroups[selectedAssignee] };
             }
         }
-
         Object.keys(userGroups).forEach(key => {
             const userGroup = userGroups[key];
             const totalTasks = userGroup.TODO.length + userGroup.IN_PROGRESS.length + userGroup.DONE.length;

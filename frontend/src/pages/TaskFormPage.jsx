@@ -22,6 +22,7 @@ const TaskFormPage = () => {
     const [users, setUsers] = useState([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
     const { toasts, removeToast, showSuccess, showError, showInfo } = useToast();
 
     useEffect(() => {
@@ -32,6 +33,8 @@ const TaskFormPage = () => {
                 if (usersResponse.statusCode === 200) {
                     setUsers(usersResponse.data);
                 }
+
+                // If editing, fetch the task data
                 if (isEdit) {
                     const taskResponse = await ApiService.getTaskById(id);
                     if (taskResponse.statusCode === 200) {
@@ -87,6 +90,7 @@ const TaskFormPage = () => {
         try {
             const submitData = {
                 ...formData,
+                // Convert status back to completed for backward compatibility if needed
                 completed: formData.status === 'DONE'
             };
 
@@ -100,6 +104,7 @@ const TaskFormPage = () => {
             }
 
             if (response.statusCode === 200) {
+                // Small delay to show success message before navigation
                 setTimeout(() => {
                     navigate('/tasks');
                 }, 1000);
