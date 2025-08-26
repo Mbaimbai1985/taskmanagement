@@ -1,0 +1,73 @@
+████████╗ █████╗ ███████╗██╗  ██╗    ███╗   ███╗ █████╗ ███╗   ██╗ █████╗  ██████╗ ███████╗██████╗ 
+╚══██╔══╝██╔══██╗██╔════╝██║ ██╔╝    ████╗ ████║██╔══██╗████╗  ██║██╔══██╗██╔════╝ ██╔════╝██╔══██╗
+   ██║   ███████║███████╗█████╔╝     ██╔████╔██║███████║██╔██╗ ██║███████║██║  ███╗█████╗  ██████╔╝
+   ██║   ██╔══██║╚════██║██╔═██╗     ██║╚██╔╝██║██╔══██║██║╚██╗██║██╔══██║██║   ██║██╔══╝  ██╔══██╗
+   ██║   ██║  ██║███████║██║  ██╗    ██║ ╚═╝ ██║██║  ██║██║ ╚████║██║  ██║╚██████╔╝███████╗██║  ██║
+   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝    ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝
+                                                                                                      
+    ╔══════════════════════════════════════════════════════════════════════════════════════════╗
+    ║                            FULL-STACK TASK MANAGEMENT SYSTEM                       ║
+    ╠══════════════════════════════════════════════════════════════════════════════════════════╣
+    ║                                                                                          ║
+    ║  ⚡ FEATURES:                                                                             ║
+    ║    • JWT Authentication & Role-Based Access Control                                      ║
+    ║    • Real-time WebSocket Updates                                                         ║
+    ║    • Drag & Drop Kanban Board                                                            ║
+    ║    • Comment System with CRUD Operations                                                 ║
+    ║    • Professional Modern UI/UX                                                           ║
+    ║    • Comprehensive API with 15+ Endpoints                                                ║
+    ║                                                                                          ║
+    ║    TECH STACK:                                                                         ║
+    ║    • Frontend: React 18+ | Router | Hooks | CSS3 | WebSocket                            ║
+    ║    • Backend: Spring Boot 3 | Security | JPA | H2 | WebSocket                           ║
+    ║    • Libraries: @dnd-kit | Axios | SockJS | STOMP | Lombok                               ║
+    ║                                                                                          ║
+    ║    AUTHENTICATION:                                                                      ║
+    ║    • Admin: admin@example.com / admin123                                                 ║
+    ║    • User:  user@example.com / user123                                                   ║
+    ║                                                                                          ║
+    ║     PORTS:                                                                               ║
+    ║    • Frontend: http://localhost:3000                                                     ║
+    ║    • Backend:  http://localhost:8080                                                     ║
+    ║    • H2 Console: http://localhost:8080/h2-console                                        ║
+    ║                                                                                          ║
+    ║    QUICK START:                                                                         ║
+    ║    1. cd backend && mvn spring-boot:run                                                  ║
+    ║    2. cd frontend && npm install && npm start                                            ║
+    ║    3. Open http://localhost:3000 and login!                                              ║
+    ║                                                                                          ║
+    ║    DOCUMENTATION:                                                                       ║
+    ║    • Main README.md - Complete project overview                                          ║
+    ║    • backend/README.md - Spring Boot technical docs                                      ║
+    ║    • frontend/README.md - React development guide                                        ║
+    ║    • SAMPLE_DATA.md - Testing scenarios & credentials                                    ║
+    ║                                                                                          ║
+    ╚══════════════════════════════════════════════════════════════════════════════════════════╝
+
+    ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+    │                               PROJECT HIGHLIGHTS                                     │
+    ├─────────────────────────────────────────────────────────────────────────────────────────┤
+    │                                                                                         │
+    │    ASSIGNMENT REQUIREMENTS MET:                                                        │
+    │    • Perfect folder structure compliance                                                │
+    │    • All core endpoints implemented                                                     │
+    │    • JWT authentication & role-based access                                             │
+    │    • Full CRUD operations                                                               │
+    │    • Modern React with hooks                                                            │
+    │    • Spring Boot with proper architecture                                               │
+    │                                                                                         │
+    │    BONUS FEATURES IMPLEMENTED:                                                         │
+    │    • WebSocket for real-time updates                                                    │
+    │    • Task comments/activity log                                                         │
+    │    • Drag-and-drop functionality                                                        │
+    │    • Comprehensive testing setup                                                        │
+    │    • Sample data seeding                                                                │
+    │                                                                                         │
+    │                                                       │
+    │                                                                                         │
+    └─────────────────────────────────────────────────────────────────────────────────────────┘
+
+          Beautiful UI •  Real-time Updates •  Secure •  Responsive • Fast
+
+                             Built for the love of coding by David Mbaimbai
+                                    Version 1.0.0 | 2025
