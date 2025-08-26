@@ -12,6 +12,8 @@ const Register = () => {
     })
 
     const [error, setError] = useState('')
+    const [success, setSuccess] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
     const navigate = useNavigate();
 
 
@@ -21,26 +23,39 @@ const Register = () => {
             ...prev,
             [name]: value
         }))
+        // Clear messages when user starts typing
+        if (error) setError('')
+        if (success) setSuccess('')
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!formData.username || !formData.email || !formData.password) {
-            setError("please fill in all fields")
+            setError("Please fill in all fields")
             return;
         }
+
+        setIsLoading(true)
+        setError('')
+        setSuccess('')
 
         try {
             const res = await ApiService.registerUser(formData);
             if (res.statusCode === 200) {
-                navigate("/login")
+                setSuccess("Registration successful! Redirecting to login...")
+                // Wait 2 seconds to show success message before navigating
+                setTimeout(() => {
+                    navigate("/login")
+                }, 2000)
             } else {
                 setError(res.message || "Registration not successful")
             }
 
         } catch (error) {
             setError(error.response?.data?.message || error.message)
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -50,6 +65,7 @@ const Register = () => {
 
                 <h2>Register</h2>
                 {error && <div className="error-message">{error}</div>}
+                {success && <div className="success-message">{success}</div>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
@@ -60,7 +76,8 @@ const Register = () => {
                             id="username"
                             value={formData.username}
                             onChange={handleChange}
-                            placeholder="Enter your username" />
+                            placeholder="Enter your username" 
+                            disabled={isLoading || success} />
                     </div>
 
                     <div className="form-group">
@@ -71,7 +88,8 @@ const Register = () => {
                             id="email"
                             value={formData.email}
                             onChange={handleChange}
-                            placeholder="Enter your email" />
+                            placeholder="Enter your email" 
+                            disabled={isLoading || success} />
                     </div>
 
                     <div className="form-group">
@@ -82,10 +100,11 @@ const Register = () => {
                             id="password"
                             value={formData.password}
                             onChange={handleChange}
-                            placeholder="Enter your password" />
+                            placeholder="Enter your password" 
+                            disabled={isLoading || success} />
                     </div>
-                    <button type="submit" className="auth-button">
-                        Register
+                    <button type="submit" className="auth-button" disabled={isLoading || success}>
+                        {isLoading ? 'Registering...' : success ? 'Redirecting...' : 'Register'}
                     </button>
                 </form>
 

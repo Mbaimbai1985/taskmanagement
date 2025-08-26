@@ -3,36 +3,55 @@ import {Link,  useNavigate } from "react-router-dom";
 import ApiService from "../api/ApiService"
 
 const Navbar = () => {
-    const isAuthenticated = ApiService.isAthenticated();
-    const navigate = useNavigate()
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userInfo, setUserInfo] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
-    
-    useEffect(() => {
-        if (isAuthenticated) {
-            fetchUserInfo();
+    const navigate = useNavigate();
+
+    // Helper function to get just the first name from username
+    const getDisplayName = (username) => {
+        console.log('getDisplayName called with username:', username); // Debug
+        
+        if (!username || username.trim() === '') {
+            console.log('Username is empty, returning User');
+            return 'User';
         }
-    }, [isAuthenticated]);
-    
-    const fetchUserInfo = async () => {
-        try {
-            const currentUser = await ApiService.getCurrentUser();
-            setUserInfo(currentUser);
-            const adminStatus = await ApiService.isAdmin();
-            setIsAdmin(adminStatus);
-        } catch (error) {
-            console.error('Error fetching user info:', error);
-        }
+        
+        // Show first name only for all users
+        const trimmedUsername = username.trim();
+        const firstName = trimmedUsername.split(' ')[0];
+        console.log('Returning first name:', firstName);
+        return firstName || 'User';
     };
 
+    useEffect(() => {
+        const checkAuth = async () => {
+            const authStatus = ApiService.isAuthenticated();
+            setIsAuthenticated(authStatus);
+            
+            if (authStatus) {
+                try {
+                    const adminStatus = await ApiService.isAdmin();
+                    setIsAdmin(adminStatus);
+                    
+                    const currentUser = await ApiService.getUserRole();
+                    setUserInfo(currentUser);
+                } catch (error) {
+                    console.error('Error fetching user info:', error);
+                }
+            }
+        };
+
+        checkAuth();
+    }, []);
+
     const handleLogout = () => {
-        const isLogout = window.confirm("Are you sure you want to logout?")
+        const isLogout = window.confirm("Are you sure you want to logout?");
         if (isLogout) {
             ApiService.logout();
-            navigate("/login")
+            navigate("/");
         }
-    }
-
+    };
 
     return (
         <nav className="navbar">
@@ -41,20 +60,24 @@ const Navbar = () => {
                     TaskManager App
                 </Link>
             </div>
-
-            <div className="desktop-nav">
+            <div className="nav-links">
                 {isAuthenticated ? (
                     <>
                         <Link to="/tasks" className="nav-link">My Tasks</Link>
                         {isAdmin && (
                             <Link to="/admin/tasks" className="nav-link admin-link">All Tasks</Link>
                         )}
-                        <div className="user-info">
-                            <span className="user-name">
-                                {userInfo?.role === 'ADMIN' ? 'ADMIN' : (userInfo?.username || 'User')}
-                            </span>
-                            <span className="user-role">({userInfo?.role || 'USER'})</span>
-                        </div>
+                        {userInfo ? (
+                            <div className="user-info">
+                                <span className="user-name">
+                                    {getDisplayName(userInfo.username)}
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="user-info">
+                                <span className="user-name">Loading...</span>
+                            </div>
+                        )}
                         <button onClick={handleLogout} className="nav-button">
                             Logout
                         </button>
@@ -69,4 +92,5 @@ const Navbar = () => {
         </nav>
     )
 }
+
 export default Navbar;

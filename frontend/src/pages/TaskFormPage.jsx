@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ApiService from '../api/ApiService';
+import { ToastContainer } from '../components/Toast';
+import useToast from '../hooks/useToast';
 
 const TaskFormPage = () => {
     const { id } = useParams();
@@ -20,6 +22,9 @@ const TaskFormPage = () => {
     const [users, setUsers] = useState([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    
+    // Toast notifications
+    const { toasts, removeToast, showSuccess, showError, showInfo } = useToast();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -79,7 +84,9 @@ const TaskFormPage = () => {
         setError('');
 
         if (!formData.title.trim()) {
-            setError('Title is required');
+            const errorMsg = 'Title is required';
+            setError(errorMsg);
+            showError(errorMsg);
             return;
         }
 
@@ -94,17 +101,26 @@ const TaskFormPage = () => {
             let response;
             if (isEdit) {
                 response = await ApiService.updateTask(submitData);
+                showSuccess(`Task "${formData.title}" updated successfully!`);
             } else {
                 response = await ApiService.createTask(submitData);
+                showSuccess(`Task "${formData.title}" created successfully!`);
             }
 
             if (response.statusCode === 200) {
-                navigate('/tasks');
+                // Small delay to show success message before navigation
+                setTimeout(() => {
+                    navigate('/tasks');
+                }, 1000);
             } else {
-                setError(response.message || 'Error saving task');
+                const errorMsg = response.message || 'Error saving task';
+                setError(errorMsg);
+                showError(errorMsg);
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Error saving task');
+            const errorMsg = err.response?.data?.message || 'Error saving task';
+            setError(errorMsg);
+            showError(errorMsg);
         } finally {
             setLoading(false);
         }
@@ -118,9 +134,15 @@ const TaskFormPage = () => {
         setLoading(true);
         try {
             await ApiService.deleteTask(id);
-            navigate('/tasks');
+            showSuccess(`Task "${formData.title}" deleted successfully!`);
+            // Small delay to show success message before navigation
+            setTimeout(() => {
+                navigate('/tasks');
+            }, 1000);
         } catch (err) {
-            setError(err.response?.data?.message || 'Error deleting task');
+            const errorMsg = err.response?.data?.message || 'Error deleting task';
+            setError(errorMsg);
+            showError(errorMsg);
         } finally {
             setLoading(false);
         }
@@ -204,23 +226,23 @@ const TaskFormPage = () => {
                                 <option value="DONE">DONE</option>
                             </select>
                         </div>
-                    </div>
 
-                    <div className="form-group">
-                        <label htmlFor="assigneeId">Assign to User</label>
-                        <select
-                            id="assigneeId"
-                            name="assigneeId"
-                            value={formData.assigneeId || ''}
-                            onChange={handleChange}
-                        >
-                            <option value="">Unassigned</option>
-                            {users.map(user => (
-                                <option key={user.id} value={user.id}>
-                                    {user.username} ({user.email})
-                                </option>
-                            ))}
-                        </select>
+                        <div className="form-group">
+                            <label htmlFor="assigneeId">Assign to User</label>
+                            <select
+                                id="assigneeId"
+                                name="assigneeId"
+                                value={formData.assigneeId || ''}
+                                onChange={handleChange}
+                            >
+                                <option value="">Unassigned</option>
+                                {users.map(user => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.username}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     <div className="form-actions">
@@ -254,6 +276,9 @@ const TaskFormPage = () => {
                     </div>
                 </form>
             </div>
+            
+            {/* Toast Notifications */}
+            <ToastContainer toasts={toasts} removeToast={removeToast} />
         </div>
     );
 };

@@ -13,11 +13,19 @@ export default class ApiService {
         return localStorage.getItem("token")
     }
 
-    static isAthenticated() {
+    static isAuthenticated() {
         return !!localStorage.getItem("token");
     }
+    
     static logout() {
-        localStorage.removeItem("token")
+        localStorage.removeItem("token");
+        // Clear user data from any caches
+        window.location.href = "/login";
+    }
+    
+    static clearInvalidToken() {
+        localStorage.removeItem("token");
+        console.log("Invalid token cleared");
     }
 
     static async getCurrentUser() {
@@ -28,6 +36,13 @@ export default class ApiService {
             return resp.data;
         } catch (error) {
             console.error('Error fetching current user:', error);
+            
+            // If unauthorized or user not found, clear the invalid token
+            if (error.response?.status === 401 || error.response?.status === 404) {
+                this.clearInvalidToken();
+                window.location.href = "/login";
+            }
+            
             return null;
         }
     }
@@ -48,20 +63,18 @@ export default class ApiService {
 
     static async getUserRole() {
         const currentUser = await this.getCurrentUser();
-        console.log('Current User from API:', currentUser);
-        const role = currentUser?.role;
-        console.log('Detected Role:', role);
-        return role;
+        console.log('Current User from API:', currentUser); // Debug log
+        return currentUser; // Return the full user object, not just the role
     }
 
     static async isAdmin() {
-        const role = await this.getUserRole();
-        return role === 'ADMIN';
+        const user = await this.getUserRole();
+        return user?.role === 'ADMIN';
     }
 
     static async isUser() {
-        const role = await this.getUserRole();
-        return role === 'USER';
+        const user = await this.getUserRole();
+        return user?.role === 'USER';
     }
 
     static getHeader() {
@@ -79,11 +92,13 @@ export default class ApiService {
         return resp.data;
     }
 
+    //Login USER
     static async loginUser(body) {
         const resp = await axios.post(`${this.API_URL}/auth/login`, body);
         return resp.data;
     }
 
+    //Get all users for task assignment
     static async getAllUsers() {
         const resp = await axios.get(`${this.API_URL}/users`, {
             headers: this.getHeader()
@@ -92,6 +107,8 @@ export default class ApiService {
     }
 
 
+
+  //TASKS API
   static async createTask(body) {
     const resp = await axios.post(`${this.API_URL}/tasks`, body, {
       headers: this.getHeader()
@@ -151,6 +168,8 @@ export default class ApiService {
     });
     return resp.data;
   }
+
+  // New method for filtering tasks by status and assignee
   static async getTasksWithFilters(status, assigneeId) {
     const resp = await axios.get(`${this.API_URL}/tasks`, {
       headers: this.getHeader(),
@@ -169,6 +188,7 @@ export default class ApiService {
     return resp.data;
   }
 
+  // Comment-related methods
   static async addComment(taskId, comment) {
     const resp = await axios.post(`${this.API_URL}/tasks/${taskId}/comments`, { comment }, {
       headers: this.getHeader()
@@ -197,7 +217,7 @@ export default class ApiService {
     return resp.data;
   }
 
-
+  // Role-based permission methods
   static async canCreateTasks() {
     return await this.isAdmin();
   }
@@ -217,31 +237,36 @@ export default class ApiService {
   static async canCommentOnTasks() {
     const isAdmin = await this.isAdmin();
     const isUser = await this.isUser();
-    return isAdmin || isUser;
+    return isAdmin || isUser; // Both admin and user can comment
   }
 
   static async canMoveTaskStatus() {
     const isAdmin = await this.isAdmin();
     const isUser = await this.isUser();
-    return isAdmin || isUser;
+    return isAdmin || isUser; // Both admin and user can move status
   }
 
   static async canViewTasks() {
     const isAdmin = await this.isAdmin();
     const isUser = await this.isUser();
-    return isAdmin || isUser;
+    return isAdmin || isUser; // Both admin and user can view
   }
 
   static async canEditComment(commentUsername) {
     const currentUser = await this.getCurrentUser();
     const isAdmin = await this.isAdmin();
+    
+    // Can edit if: admin OR owns the comment
     return isAdmin || (currentUser && currentUser.username === commentUsername);
   }
 
   static async canDeleteComment(commentUsername) {
     const currentUser = await this.getCurrentUser();
     const isAdmin = await this.isAdmin();
+    
+    // Can delete if: admin OR owns the comment
     return isAdmin || (currentUser && currentUser.username === commentUsername);
   }
+
 
 }

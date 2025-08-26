@@ -11,6 +11,8 @@ const Login = () => {
     })
 
     const [error, setError] = useState('')
+    const [success, setSuccess] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
     const navigate = useNavigate();
 
 
@@ -20,27 +22,40 @@ const Login = () => {
             ...prev,
             [name]: value
         }))
+        // Clear messages when user starts typing
+        if (error) setError('')
+        if (success) setSuccess('')
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!formData.email || !formData.password) {
-            setError("please fill in all fields")
+            setError("Please fill in all fields")
             return;
         }
+
+        setIsLoading(true)
+        setError('')
+        setSuccess('')
 
         try {
             const res = await ApiService.loginUser(formData);
             if (res.statusCode === 200) {
+                setSuccess("Login successful! Redirecting to dashboard...")
                 ApiService.saveToken(res.data)
-                navigate("/tasks")
+                // Wait 1.5 seconds to show success message before navigating
+                setTimeout(() => {
+                    navigate("/tasks")
+                }, 1500)
             } else {
                 setError(res.message || "Login not successful")
             }
 
         } catch (error) {
             setError(error.response?.data?.message || error.message)
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -50,6 +65,7 @@ const Login = () => {
 
                 <h2>Login</h2>
                 {error && <div className="error-message">{error}</div>}
+                {success && <div className="success-message">{success}</div>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
@@ -60,7 +76,8 @@ const Login = () => {
                             id="email"
                             value={formData.email}
                             onChange={handleChange}
-                            placeholder="Enter your email" />
+                            placeholder="Enter your email" 
+                            disabled={isLoading || success} />
                     </div>
 
                     <div className="form-group">
@@ -71,10 +88,11 @@ const Login = () => {
                             id="password"
                             value={formData.password}
                             onChange={handleChange}
-                            placeholder="Enter your password" />
+                            placeholder="Enter your password" 
+                            disabled={isLoading || success} />
                     </div>
-                    <button type="submit" className="auth-button">
-                        Login
+                    <button type="submit" className="auth-button" disabled={isLoading || success}>
+                        {isLoading ? 'Logging in...' : success ? 'Redirecting...' : 'Login'}
                     </button>
                 </form>
 

@@ -98,7 +98,16 @@ const AdminTasksPage = () => {
         <div className="tasks-page">
             <div className="page-header">
                 <h1>Admin Dashboard - All Tasks</h1>
-                <p>Total Tasks: {tasks.length}</p>
+                <div className="total-stats">
+                    <div className="total-count">
+                        <span className="count-label">Total Tasks:</span>
+                        <span className="count-number">{tasks.length}</span>
+                    </div>
+                    <div className="filtered-count">
+                        <span className="count-label">Showing:</span>
+                        <span className="count-number">{filteredTasks.length}</span>
+                    </div>
+                </div>
             </div>
 
             {error && <div className="error-message">{error}</div>}
@@ -115,7 +124,7 @@ const AdminTasksPage = () => {
                         <option value="">All Statuses</option>
                         <option value="TODO">To Do</option>
                         <option value="IN_PROGRESS">In Progress</option>
-                        <option value="COMPLETED">Completed</option>
+                        <option value="DONE">Done</option>
                     </select>
                 </div>
 
@@ -138,17 +147,32 @@ const AdminTasksPage = () => {
 
             {/* Tasks Summary */}
             <div className="tasks-summary">
-                <div className="summary-card">
+                <div className="summary-card todo-card">
                     <h3>TODO</h3>
-                    <span>{tasks.filter(t => t.status === 'TODO').length}</span>
+                    <div className="card-stats">
+                        <span className="main-count">{tasks.filter(t => t.status === 'TODO').length}</span>
+                        <span className="percentage">
+                            {tasks.length > 0 ? Math.round((tasks.filter(t => t.status === 'TODO').length / tasks.length) * 100) : 0}%
+                        </span>
+                    </div>
                 </div>
-                <div className="summary-card">
+                <div className="summary-card progress-card">
                     <h3>IN PROGRESS</h3>
-                    <span>{tasks.filter(t => t.status === 'IN_PROGRESS').length}</span>
+                    <div className="card-stats">
+                        <span className="main-count">{tasks.filter(t => t.status === 'IN_PROGRESS').length}</span>
+                        <span className="percentage">
+                            {tasks.length > 0 ? Math.round((tasks.filter(t => t.status === 'IN_PROGRESS').length / tasks.length) * 100) : 0}%
+                        </span>
+                    </div>
                 </div>
-                <div className="summary-card">
-                    <h3>COMPLETED</h3>
-                    <span>{tasks.filter(t => t.status === 'COMPLETED').length}</span>
+                <div className="summary-card done-card">
+                    <h3>DONE</h3>
+                    <div className="card-stats">
+                        <span className="main-count">{tasks.filter(t => t.status === 'DONE').length}</span>
+                        <span className="percentage">
+                            {tasks.length > 0 ? Math.round((tasks.filter(t => t.status === 'DONE').length / tasks.length) * 100) : 0}%
+                        </span>
+                    </div>
                 </div>
             </div>
 

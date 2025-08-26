@@ -1,90 +1,138 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import ApiService from "../api/ApiService";
-import TaskDetails from "../components/TaskDetails";
-import {
-  DndContext,
-  DragOverlay,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  useDroppable,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import {
-  restrictToVerticalAxis,
-  restrictToWindowEdges,
-} from '@dnd-kit/modifiers';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ApiService from '../api/ApiService';
+import WebSocketService from '../services/WebSocketService';
+import TaskDetails from '../components/TaskDetails';
+import { ToastContainer } from '../components/Toast';
+import useToast from '../hooks/useToast';
+
+// Drag and Drop imports
+import { DndContext, DragOverlay, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, useDroppable } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import SortableTaskItem from '../components/SortableTaskItem';
 import DroppableColumn from '../components/DroppableColumn';
 
 const TasksPage = () => {
+    // ... existing states
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [assigneeFilter, setAssigneeFilter] = useState('ALL');
     const [selectedTask, setSelectedTask] = useState(null);
     const [showTaskDetails, setShowTaskDetails] = useState(false);
-    const [activeTask, setActiveTask] = useState(null);
-    const navigate = useNavigate();
-    const isAuthenticated = ApiService.isAthenticated();
-    const userInfo = ApiService.getUserInfo();
-    const isAdmin = ApiService.isAdmin();
-    
-    // Role-based permissions
-    const canCreateTasks = ApiService.canCreateTasks();
-    const canDeleteTasks = ApiService.canDeleteTasks();
-    const canMoveStatus = ApiService.canMoveTaskStatus();
+    const [userInfo, setUserInfo] = useState(null);
+    const [permissions, setPermissions] = useState({
+        canCreateTasks: false,
+        canUpdateTasks: false,
+        canDeleteTasks: false,
+        canAssignTasks: false,
+        canViewAllTasks: false,
+        canComment: false,
+        canMoveStatus: false
+    });
 
-    // Drag and drop sensors
+    // Drag and Drop state
+    const [activeTask, setActiveTask] = useState(null);
+    
+    // Toast notifications
+    const { toasts, removeToast, showSuccess, showError, showWarning } = useToast();
+
+    const navigate = useNavigate();
+
+    // Helper function to get just the first name from username
+    const getDisplayName = (username) => {
+        if (!username || username.trim() === '') return 'User';
+        
+        // Show first name only for all users
+        const trimmedUsername = username.trim();
+        const firstName = trimmedUsername.split(' ')[0];
+        return firstName || 'User';
+    };
+
+    // DND Sensors
     const sensors = useSensors(
-        useSensor(PointerSensor, {
-            activationConstraint: {
-                distance: 8,
-            },
-        }),
+        useSensor(PointerSensor),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,
         })
     );
 
+    // ... existing useEffect and functions remain the same
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Fetch tasks and users in parallel
-                const [tasksRes, usersRes] = await Promise.all([
-                    ApiService.getAllMyTasks(),
-                    ApiService.getAllUsers()
-                ]);
-                
-                if (tasksRes.statusCode === 200) {
-                    setTasks(tasksRes.data);
-                }
-                
-                if (usersRes.statusCode === 200) {
-                    setUsers(usersRes.data);
-                }
-            } catch (error) {
-                setError(error.response?.data?.message || 'Error fetching data');
-            }
-        };
-
-        if (isAuthenticated) {
-            fetchData();
-        } else {
+        // Check authentication first
+        if (!ApiService.isAuthenticated()) {
             navigate('/login');
+            return;
         }
-    }, [isAuthenticated, navigate]);
 
-    // Filter tasks based on selected filters
+        fetchTasks();
+        fetchUsers();
+        fetchUserInfo();
+        
+        // Setup WebSocket connection
+        WebSocketService.connect();
+        WebSocketService.subscribeToTasks((taskUpdate) => {
+            setTasks(prev => prev.map(task => 
+                task.id === taskUpdate.id ? { ...task, ...taskUpdate } : task
+            ));
+        });
+
+        // Cleanup on unmount
+        return () => {
+            WebSocketService.disconnect();
+        };
+    }, [navigate]);
+
+    const fetchTasks = async () => {
+        try {
+            // For My Tasks page, get user's own tasks
+            const response = await ApiService.getAllMyTasks();
+            setTasks(response.data || []);
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Error loading tasks';
+            setError(errorMessage);
+            showError(errorMessage);
+            console.error('Error fetching tasks:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchUsers = async () => {
+        try {
+            const response = await ApiService.getAllUsers();
+            setUsers(response.data || []);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    };
+
+    const fetchUserInfo = async () => {
+        try {
+            const currentUser = await ApiService.getUserRole();
+
+            setUserInfo(currentUser);
+            
+            // Set permissions based on user role
+            const isAdmin = currentUser.role === 'ADMIN';
+            setPermissions({
+                canCreateTasks: true, // All authenticated users can create tasks
+                canUpdateTasks: isAdmin, // Only admins can update all tasks
+                canDeleteTasks: isAdmin, // Only admins can delete tasks
+                canAssignTasks: isAdmin, // Only admins can assign tasks
+                canViewAllTasks: isAdmin, // Only admins can view all tasks
+                canComment: true, // All users can comment
+                canMoveStatus: true // All users can move task status
+            });
+        } catch (error) {
+            console.error('Error fetching user info:', error);
+        }
+    };
+
+    // Filter tasks based on status and assignee
     const filteredTasks = tasks.filter(task => {
         const matchesStatus = statusFilter === 'ALL' || task.status === statusFilter;
         const matchesAssignee = assigneeFilter === 'ALL' || 
@@ -93,49 +141,38 @@ const TasksPage = () => {
         return matchesStatus && matchesAssignee;
     });
 
-    // Group tasks by status for kanban view
+    // Group tasks by status for Kanban view
     const groupedTasks = {
         TODO: filteredTasks.filter(task => task.status === 'TODO'),
         IN_PROGRESS: filteredTasks.filter(task => task.status === 'IN_PROGRESS'),
         DONE: filteredTasks.filter(task => task.status === 'DONE')
     };
 
-    // Handle drag start
+    // Drag and Drop handlers
     const handleDragStart = (event) => {
-        const { active } = event;
-        const task = tasks.find(t => t.id === active.id);
-        setActiveTask(task);
+        setActiveTask(tasks.find(task => task.id === event.active.id));
     };
 
-    // Handle drag end
     const handleDragEnd = async (event) => {
         const { active, over } = event;
         setActiveTask(null);
 
-        if (!over) return;
+        if (!over || !permissions.canMoveStatus) return;
 
         const taskId = active.id;
         const newStatus = over.id;
-
-        // Find the task being moved
         const task = tasks.find(t => t.id === taskId);
+
         if (!task || task.status === newStatus) return;
 
-        // Check permissions for status changes
-        if (!canMoveStatus) {
-            setError("You don't have permission to move tasks");
-            return;
-        }
+        // Optimistic update
+        setTasks(prev => prev.map(t => 
+            t.id === taskId ? { ...t, status: newStatus } : t
+        ));
 
         try {
-            // Optimistically update the UI
-            const updatedTasks = tasks.map(t => 
-                t.id === taskId ? { ...t, status: newStatus } : t
-            );
-            setTasks(updatedTasks);
-
-            // Update task on backend
-            const taskRequest = {
+            // Update task status on backend
+            const updateData = {
                 id: task.id,
                 title: task.title,
                 description: task.description,
@@ -144,54 +181,56 @@ const TasksPage = () => {
                 assigneeId: task.assignee?.id || null
             };
 
-            const response = await ApiService.updateTask(taskRequest);
+            await ApiService.updateTask(updateData);
             
-            if (response.statusCode === 200) {
-                // Update with server response
-                const updatedTasks = tasks.map(t => 
-                    t.id === taskId ? response.data : t
-                );
-                setTasks(updatedTasks);
-            }
+            // Show success message
+            const statusDisplayNames = {
+                'TODO': 'To Do',
+                'IN_PROGRESS': 'In Progress',
+                'DONE': 'Done'
+            };
+            showSuccess(`Task "${task.title}" moved to ${statusDisplayNames[newStatus]}`);
         } catch (error) {
+            console.error('Error updating task status:', error);
             // Revert optimistic update on error
-            setTasks(tasks);
-            setError(error.response?.data?.message || 'Failed to update task status');
+            setTasks(prev => prev.map(t => 
+                t.id === taskId ? { ...t, status: task.status } : t
+            ));
+            const errorMessage = error.response?.data?.message || 'Failed to update task status';
+            setError(errorMessage);
+            showError(errorMessage);
         }
     };
 
-    // Handle task click to show details
     const handleTaskClick = (task) => {
         setSelectedTask(task);
         setShowTaskDetails(true);
     };
 
-    // Handle task update from details modal
     const handleTaskUpdate = (updatedTask) => {
-        setTasks(tasks.map(task => 
+        setTasks(prev => prev.map(task => 
             task.id === updatedTask.id ? updatedTask : task
         ));
-        setSelectedTask(updatedTask);
     };
 
-    // Render status column using DroppableColumn
     const renderStatusColumn = (status, title, tasks) => {
-        const statusTasks = tasks || [];
-        
         return (
             <DroppableColumn
                 key={status}
                 status={status}
                 title={title}
-                tasks={statusTasks}
+                tasks={tasks}
                 onTaskClick={handleTaskClick}
-                canMove={canMoveStatus}
+                canMove={permissions.canMoveStatus}
             />
         );
     };
 
-    if (!isAuthenticated) {
-        return null;
+    // UI permissions
+    const canCreateTasks = permissions.canCreateTasks;
+
+    if (loading) {
+        return <div className="loading">Loading tasks...</div>;
     }
 
     return (
@@ -202,27 +241,23 @@ const TasksPage = () => {
                     {userInfo && (
                         <div className="user-welcome">
                             <span>Welcome back, <strong>
-                                {userInfo.role === 'ADMIN' ? 'ADMIN' : userInfo.username}
+                                {getDisplayName(userInfo.username)}
                             </strong></span>
-                            <span className="user-role">({userInfo.role})</span>
-                            {isAdmin && <span className="admin-badge">Admin</span>}
                         </div>
                     )}
                 </div>
                 
                 {canCreateTasks && (
-                    <Link to="/tasks/add" className="create-task-btn">
+                    <button 
+                        onClick={() => navigate('/tasks/add')} 
+                        className="create-task-btn"
+                    >
                         + Create Task
-                    </Link>
+                    </button>
                 )}
             </div>
 
-            {error && (
-                <div className="error-message">
-                    <p>{error}</p>
-                    <button onClick={() => setError('')}>Dismiss</button>
-                </div>
-            )}
+            {error && <div className="error-message">{error}</div>}
 
             {/* Filters */}
             <div className="filters">
@@ -234,9 +269,9 @@ const TasksPage = () => {
                         onChange={(e) => setStatusFilter(e.target.value)}
                     >
                         <option value="ALL">All Statuses</option>
-                        <option value="TODO">To Do</option>
-                        <option value="IN_PROGRESS">In Progress</option>
-                        <option value="DONE">Done</option>
+                        <option value="TODO">TODO</option>
+                        <option value="IN_PROGRESS">IN PROGRESS</option>
+                        <option value="DONE">DONE</option>
                     </select>
                 </div>
 
@@ -274,10 +309,10 @@ const TasksPage = () => {
 
                 <DragOverlay>
                     {activeTask ? (
-                        <div className="task-card dragging">
+                        <div className="task-card drag-overlay">
                             <div className="task-header">
-                                <h4>{activeTask.title}</h4>
-                                <span className={`priority-badge ${activeTask.priority.toLowerCase()}`}>
+                                <h3 className="task-title">{activeTask.title}</h3>
+                                <span className={`priority-badge priority-${activeTask.priority?.toLowerCase()}`}>
                                     {activeTask.priority}
                                 </span>
                             </div>
@@ -301,8 +336,13 @@ const TasksPage = () => {
                         setSelectedTask(null);
                     }}
                     onTaskUpdate={handleTaskUpdate}
+                    showSuccess={showSuccess}
+                    showError={showError}
                 />
             )}
+            
+            {/* Toast Notifications */}
+            <ToastContainer toasts={toasts} removeToast={removeToast} />
         </div>
     );
 };
