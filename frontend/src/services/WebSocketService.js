@@ -150,6 +150,5 @@ class WebSocketService {
     }
 }
 
-// Create singleton instance
 const webSocketService = new WebSocketService();
 export default webSocketService;
