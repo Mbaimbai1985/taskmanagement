@@ -43,18 +43,14 @@ public class Task {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignee_id")
     @JsonIgnore
     private User assignee;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
     @JsonIgnore
     private User creator;
-
-    // Keep backward compatibility with existing code
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore

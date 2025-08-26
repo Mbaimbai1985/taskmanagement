@@ -8,26 +8,17 @@ import lombok.Data;
 
 @Data
 public class TaskRequest {
-
     private Long id;
-
     @NotBlank(message = "Title cannot be empty")
     @Size(max = 200, message = "Title must be less than 200 characters")
     private String title;
-
     @Size(max = 500, message = "Description must be less than 500 characters")
     private String description;
-
     @NotNull(message = "Status is required")
     private TaskStatus status;
-
     @NotNull(message = "Priority is required")
     private Priority priority;
-
-    // ID of user to assign task to (optional)
     private Long assigneeId;
-
-    // For backward compatibility - will be converted to status
     private Boolean completed;
 
 }
